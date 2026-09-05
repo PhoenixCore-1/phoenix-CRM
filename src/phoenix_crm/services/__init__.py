@@ -26,6 +26,7 @@ from .call_preparation_ai import CallPreparationAIService, CallPreparationContex
 from .next_best_action_ai import NextBestActionAIService, NextBestActionContext
 from .relationship_risk_ai import RelationshipRiskAIService, RelationshipRiskContext
 from .activity_summarisation_ai import ActivitySummarisationAIService, ActivitySummarisationContext
+from .lead_qualification_ai import LeadQualificationAIService, LeadQualificationAIContext
 from .follow_up_service import FollowUpService
 from .lead_access import LeadAccessService
 from .lead_activity import LeadActivityContext, LeadActivityService
@@ -42,7 +43,7 @@ from .purchase_summary import PurchaseHistorySummary, PurchaseSummaryService
 __all__ = [
     "ActivityIntegrityService", "ActivityTimelineEntry", "ActivityTimelineService", "ActivityValidationResult", "AIProposal",
     "AIAvailability", "CRMAIContext", "CRMAIRequest", "CRMAIResult", "CRMAIService", "CoreAICapability", "CustomerSummaryAIService",
-    "CallPreparationAIService", "CallPreparationContext", "NextBestActionAIService", "NextBestActionContext", "RelationshipRiskAIService", "RelationshipRiskContext", "ActivitySummarisationAIService", "ActivitySummarisationContext",
+    "CallPreparationAIService", "CallPreparationContext", "NextBestActionAIService", "NextBestActionContext", "RelationshipRiskAIService", "RelationshipRiskContext", "ActivitySummarisationAIService", "ActivitySummarisationContext", "LeadQualificationAIService", "LeadQualificationAIContext",
     "CadenceResult", "CallCadenceService", "CallPlanItem", "CallPlanItemType", "CallPlanningService", "CallPlanTiming", "CallPlanTimingService",
     "CRMIntelligenceService", "CRMIntelligenceType", "CRMWorkItemType", "CRMWorkQueueItem", "Customer360Composition", "Customer360CompositionService", "Customer360ContactItem", "Customer360ContactsSitesSection", "Customer360ContactsSitesService",
     "Customer360DocumentsSection", "Customer360DocumentsService", "Customer360Overview", "Customer360OverviewService",
