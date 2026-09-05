@@ -9,6 +9,7 @@ from .call_planning import CallPlanItem, CallPlanItemType, CallPlanningService
 from .follow_up_service import FollowUpService
 from .lead_access import LeadAccessService
 from .lead_activity import LeadActivityContext, LeadActivityService
+from .lead_ai import LeadAIContext, LeadAIProposal, LeadAIService, LeadIntelligenceType
 from .lead_conversion import CustomerConversionResult, LeadConversionService
 from .lead_qualification import LeadQualificationResult, LeadQualificationService
 from .lead_matching import LeadMatch, LeadMatchingService
@@ -33,7 +34,11 @@ __all__ = [
     "LeadAccessService",
     "LeadActivityContext",
     "LeadActivityService",
+    "LeadAIContext",
+    "LeadAIProposal",
+    "LeadAIService",
     "LeadConversionService",
+    "LeadIntelligenceType",
     "LeadMatch",
     "LeadMatchingService",
     "LeadQualificationResult",
