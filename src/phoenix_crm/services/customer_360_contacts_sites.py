@@ -76,10 +76,10 @@ class Customer360ContactsSitesService:
             item for item in sites
             if item.tenant_id == tenant_id and item.customer_id == customer_id
         )
-        customer_contacts = tuple(sorted(customer_contacts, key=lambda item: (not item.primary, item.full_name.lower(), str(item.id))))
-        customer_sites = tuple(sorted(customer_sites, key=lambda item: (not item.primary, item.name.lower(), str(item.id))))
-        primary_contacts = [item for item in customer_contacts if item.primary and item.status is ContactStatus.ACTIVE]
-        primary_sites = [item for item in customer_sites if item.primary and item.status is CustomerSiteStatus.ACTIVE]
+        customer_contacts = tuple(sorted(customer_contacts, key=lambda item: (not item.is_primary, item.full_name.lower(), str(item.id))))
+        customer_sites = tuple(sorted(customer_sites, key=lambda item: (not item.is_primary, item.name.lower(), str(item.id))))
+        primary_contacts = [item for item in customer_contacts if item.is_primary and item.status is ContactStatus.ACTIVE]
+        primary_sites = [item for item in customer_sites if item.is_primary and item.status is CustomerSiteStatus.ACTIVE]
         return Customer360ContactsSitesSection(
             tenant_id=tenant_id,
             customer_id=customer_id,
@@ -99,7 +99,7 @@ class Customer360ContactsSitesService:
             phone=item.phone,
             mobile=item.mobile,
             status=item.status,
-            primary=item.primary,
+            primary=item.is_primary,
         )
 
     @staticmethod
@@ -110,11 +110,11 @@ class Customer360ContactsSitesService:
             address_line_1=item.address_line_1,
             address_line_2=item.address_line_2,
             city=item.city,
-            province=item.province,
+            province=item.state_province,
             postal_code=item.postal_code,
             country=item.country,
             status=item.status,
-            primary=item.primary,
+            primary=item.is_primary,
         )
 
     @staticmethod
