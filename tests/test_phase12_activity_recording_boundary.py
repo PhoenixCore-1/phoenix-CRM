@@ -6,7 +6,7 @@ import pytest
 
 from phoenix_crm.api import AccessScopeContext, RequestContext, TenantContext, UserContext
 from phoenix_crm.domain import Customer, CustomerActivity
-from phoenix_crm.services import ActivityService
+from phoenix_crm.services.activity_service import ActivityService
 
 
 def request_context(tenant_id, user_id, customer_id):
