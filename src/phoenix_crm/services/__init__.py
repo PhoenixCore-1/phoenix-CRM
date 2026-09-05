@@ -27,6 +27,7 @@ from .next_best_action_ai import NextBestActionAIService, NextBestActionContext
 from .relationship_risk_ai import RelationshipRiskAIService, RelationshipRiskContext
 from .activity_summarisation_ai import ActivitySummarisationAIService, ActivitySummarisationContext
 from .lead_qualification_ai import LeadQualificationAIService, LeadQualificationAIContext
+from .potential_detection_ai import PotentialDetectionAIService, PotentialDetectionContext
 from .follow_up_service import FollowUpService
 from .lead_access import LeadAccessService
 from .lead_activity import LeadActivityContext, LeadActivityService
@@ -43,7 +44,7 @@ from .purchase_summary import PurchaseHistorySummary, PurchaseSummaryService
 __all__ = [
     "ActivityIntegrityService", "ActivityTimelineEntry", "ActivityTimelineService", "ActivityValidationResult", "AIProposal",
     "AIAvailability", "CRMAIContext", "CRMAIRequest", "CRMAIResult", "CRMAIService", "CoreAICapability", "CustomerSummaryAIService",
-    "CallPreparationAIService", "CallPreparationContext", "NextBestActionAIService", "NextBestActionContext", "RelationshipRiskAIService", "RelationshipRiskContext", "ActivitySummarisationAIService", "ActivitySummarisationContext", "LeadQualificationAIService", "LeadQualificationAIContext",
+    "CallPreparationAIService", "CallPreparationContext", "NextBestActionAIService", "NextBestActionContext", "RelationshipRiskAIService", "RelationshipRiskContext", "ActivitySummarisationAIService", "ActivitySummarisationContext", "LeadQualificationAIService", "LeadQualificationAIContext", "PotentialDetectionAIService", "PotentialDetectionContext",
     "CadenceResult", "CallCadenceService", "CallPlanItem", "CallPlanItemType", "CallPlanningService", "CallPlanTiming", "CallPlanTimingService",
     "CRMIntelligenceService", "CRMIntelligenceType", "CRMWorkItemType", "CRMWorkQueueItem", "Customer360Composition", "Customer360CompositionService", "Customer360ContactItem", "Customer360ContactsSitesSection", "Customer360ContactsSitesService",
     "Customer360DocumentsSection", "Customer360DocumentsService", "Customer360Overview", "Customer360OverviewService",
@@ -51,7 +52,7 @@ __all__ = [
     "Customer360PurchaseSection", "Customer360PurchaseSectionService", "Customer360PurchaseService", "Customer360PurchaseView", "Customer360Reference",
     "Customer360SiteItem", "Customer360SolutionItem", "Customer360Timeline", "Customer360TimelineEntry", "Customer360TimelineService", "Customer360View",
     "CustomerCallFollowUpQueueService", "CustomerConversionResult", "CustomerDashboardComposition", "CustomerDashboardCompositionService", "CustomerDashboardFoundation", "CustomerDashboardFoundationService", "CustomerDashboardKPIService", "CustomerDashboardKPIs", "CustomerDashboardMetric", "CustomerDashboardSection", "CustomerDocumentProvider", "CustomerPotentialService", "DashboardMetricKind", "FollowUpService", "LeadAccessService", "LeadActivityContext",
-    "LeadActivityService", "LeadAIContext", "LeadAIProposal", "LeadAIService", "LeadConversionService", "LeadIntelligenceType", "LeadMatch",
+    "LeadActivityService", "LeadAIContext", "LeadAIProposal", "LeadAIService", "LeadIntelligenceType", "LeadMatch",
     "LeadMatchingService", "LeadQualificationResult", "LeadQualificationService", "PotentialQualificationResult", "PotentialQualificationService",
     "ProjectReferenceProvider", "PurchaseHistoryBoundary", "PurchaseHistoryProvider", "PurchaseHistoryService", "PurchaseHistorySummary", "PurchaseSummaryService",
     "TimedCallPlanItem",
