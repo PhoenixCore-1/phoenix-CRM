@@ -9,6 +9,7 @@ from .call_planning import CallPlanItem, CallPlanItemType, CallPlanningService
 from .customer_360 import Customer360PurchaseService, Customer360PurchaseView
 from .customer_360_contract import Customer360Reference, Customer360View
 from .customer_360_overview import Customer360Overview, Customer360OverviewService
+from .customer_360_timeline import Customer360Timeline, Customer360TimelineEntry, Customer360TimelineService
 from .follow_up_service import FollowUpService
 from .lead_access import LeadAccessService
 from .lead_activity import LeadActivityContext, LeadActivityService
@@ -42,6 +43,9 @@ __all__ = [
     "Customer360PurchaseService",
     "Customer360PurchaseView",
     "Customer360Reference",
+    "Customer360Timeline",
+    "Customer360TimelineEntry",
+    "Customer360TimelineService",
     "Customer360View",
     "CustomerConversionResult",
     "CustomerPotentialService",
