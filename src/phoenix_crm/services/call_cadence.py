@@ -84,9 +84,20 @@ class CallCadenceService:
     def last_interaction(
         customer_id: UUID,
         activities: list[CustomerActivity],
+        *,
+        tenant_id: UUID | None = None,
     ) -> datetime | None:
-        """Return the newest activity timestamp for a customer."""
-        matching = [activity for activity in activities if activity.customer_id == customer_id]
+        """Return the newest activity timestamp for a customer.
+
+        When tenant_id is supplied, activities from other tenants are ignored.
+        Supplying tenant_id is recommended for multi-tenant callers.
+        """
+        matching = [
+            activity
+            for activity in activities
+            if activity.customer_id == customer_id
+            and (tenant_id is None or activity.tenant_id == tenant_id)
+        ]
         if not matching:
             return None
         return max(activity.occurred_at for activity in matching)
