@@ -2,6 +2,7 @@
 
 from .activity_timeline import ActivityTimelineEntry, ActivityTimelineService
 from .activity_validation import ActivityIntegrityService, ActivityValidationResult
+from .ai_intelligence import AIProposal, CRMIntelligenceService, CRMIntelligenceType
 from .call_cadence import CadenceResult, CallCadenceService
 from .call_plan_timing import CallPlanTiming, CallPlanTimingService, TimedCallPlanItem
 from .call_planning import CallPlanItem, CallPlanItemType, CallPlanningService
@@ -12,6 +13,7 @@ __all__ = [
     "ActivityTimelineEntry",
     "ActivityTimelineService",
     "ActivityValidationResult",
+    "AIProposal",
     "CadenceResult",
     "CallCadenceService",
     "CallPlanItem",
@@ -19,6 +21,8 @@ __all__ = [
     "CallPlanningService",
     "CallPlanTiming",
     "CallPlanTimingService",
+    "CRMIntelligenceService",
+    "CRMIntelligenceType",
     "FollowUpService",
     "TimedCallPlanItem",
 ]
