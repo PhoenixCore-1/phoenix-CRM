@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import pytest
 
-from phoenix_crm.api import RequestContext
+from phoenix_crm.api import AccessScopeContext, RequestContext, TenantContext, UserContext
 from phoenix_crm.services import (
     CustomerDashboardFoundationService,
     CustomerDashboardMetric,
@@ -78,7 +78,11 @@ def test_duplicate_metric_keys_are_rejected_within_section():
 
 def test_core_tenant_scope_is_enforced():
     tenant_id = uuid4()
-    context = RequestContext.for_tenant(str(uuid4()))
+    context = RequestContext(
+        tenant=TenantContext(str(uuid4())),
+        user=UserContext(str(uuid4())),
+        access_scope=AccessScopeContext(),
+    )
 
     with pytest.raises(PermissionError, match="tenant"):
         CustomerDashboardFoundationService.build(
