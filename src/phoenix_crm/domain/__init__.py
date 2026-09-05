@@ -10,6 +10,7 @@ from .activity import (
 from .contact import Contact, ContactStatus
 from .customer import CallCadence, Customer, CustomerCallClass, CustomerStatus, CustomerType
 from .follow_up import CustomerFollowUp, FollowUpPriority, FollowUpStatus
+from .lead import Lead, LeadSource, LeadStatus
 from .site import CustomerSite, CustomerSiteStatus
 from .site_party import (
     ProjectSiteParty,
@@ -37,6 +38,9 @@ __all__ = [
     "FollowUpPriority",
     "FollowUpStatus",
     "InteractionDirection",
+    "Lead",
+    "LeadSource",
+    "LeadStatus",
     "ProjectSiteParty",
     "SitePartyMatchStatus",
     "SitePartyRole",
