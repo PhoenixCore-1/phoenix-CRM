@@ -18,6 +18,7 @@ from .customer_360_timeline import Customer360Timeline, Customer360TimelineEntry
 from .customer_360_composition import Customer360Composition, Customer360CompositionService
 from .customer_360_dashboard import CustomerDashboardFoundation, CustomerDashboardFoundationService, CustomerDashboardMetric, CustomerDashboardSection, DashboardMetricKind
 from .customer_360_kpis import CustomerDashboardKPIService, CustomerDashboardKPIs
+from .customer_call_follow_up_queue import CustomerCallFollowUpQueueService, CRMWorkItemType, CRMWorkQueueItem
 from .follow_up_service import FollowUpService
 from .lead_access import LeadAccessService
 from .lead_activity import LeadActivityContext, LeadActivityService
@@ -34,12 +35,12 @@ from .purchase_summary import PurchaseHistorySummary, PurchaseSummaryService
 __all__ = [
     "ActivityIntegrityService", "ActivityTimelineEntry", "ActivityTimelineService", "ActivityValidationResult", "AIProposal",
     "CadenceResult", "CallCadenceService", "CallPlanItem", "CallPlanItemType", "CallPlanningService", "CallPlanTiming", "CallPlanTimingService",
-    "CRMIntelligenceService", "CRMIntelligenceType", "Customer360Composition", "Customer360CompositionService", "Customer360ContactItem", "Customer360ContactsSitesSection", "Customer360ContactsSitesService",
+    "CRMIntelligenceService", "CRMIntelligenceType", "CRMWorkItemType", "CRMWorkQueueItem", "Customer360Composition", "Customer360CompositionService", "Customer360ContactItem", "Customer360ContactsSitesSection", "Customer360ContactsSitesService",
     "Customer360DocumentsSection", "Customer360DocumentsService", "Customer360Overview", "Customer360OverviewService",
     "Customer360PotentialItem", "Customer360PotentialSection", "Customer360PotentialService", "Customer360ProjectSiteSection", "Customer360ProjectsService",
     "Customer360PurchaseSection", "Customer360PurchaseSectionService", "Customer360PurchaseService", "Customer360PurchaseView", "Customer360Reference",
     "Customer360SiteItem", "Customer360SolutionItem", "Customer360Timeline", "Customer360TimelineEntry", "Customer360TimelineService", "Customer360View",
-    "CustomerConversionResult", "CustomerDashboardFoundation", "CustomerDashboardFoundationService", "CustomerDashboardKPIService", "CustomerDashboardKPIs", "CustomerDashboardMetric", "CustomerDashboardSection", "CustomerDocumentProvider", "CustomerPotentialService", "DashboardMetricKind", "FollowUpService", "LeadAccessService", "LeadActivityContext",
+    "CustomerCallFollowUpQueueService", "CustomerConversionResult", "CustomerDashboardFoundation", "CustomerDashboardFoundationService", "CustomerDashboardKPIService", "CustomerDashboardKPIs", "CustomerDashboardMetric", "CustomerDashboardSection", "CustomerDocumentProvider", "CustomerPotentialService", "DashboardMetricKind", "FollowUpService", "LeadAccessService", "LeadActivityContext",
     "LeadActivityService", "LeadAIContext", "LeadAIProposal", "LeadAIService", "LeadConversionService", "LeadIntelligenceType", "LeadMatch",
     "LeadMatchingService", "LeadQualificationResult", "LeadQualificationService", "PotentialQualificationResult", "PotentialQualificationService",
     "ProjectReferenceProvider", "PurchaseHistoryBoundary", "PurchaseHistoryProvider", "PurchaseHistoryService", "PurchaseHistorySummary", "PurchaseSummaryService",
