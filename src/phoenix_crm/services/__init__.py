@@ -16,6 +16,7 @@ from .customer_360_purchase import Customer360PurchaseSection, Customer360Purcha
 from .customer_360_potential import Customer360PotentialItem, Customer360PotentialSection, Customer360PotentialService, Customer360SolutionItem
 from .customer_360_timeline import Customer360Timeline, Customer360TimelineEntry, Customer360TimelineService
 from .customer_360_composition import Customer360Composition, Customer360CompositionService
+from .customer_360_dashboard import CustomerDashboardFoundation, CustomerDashboardFoundationService, CustomerDashboardMetric, CustomerDashboardSection, DashboardMetricKind
 from .follow_up_service import FollowUpService
 from .lead_access import LeadAccessService
 from .lead_activity import LeadActivityContext, LeadActivityService
@@ -37,7 +38,7 @@ __all__ = [
     "Customer360PotentialItem", "Customer360PotentialSection", "Customer360PotentialService", "Customer360ProjectSiteSection", "Customer360ProjectsService",
     "Customer360PurchaseSection", "Customer360PurchaseSectionService", "Customer360PurchaseService", "Customer360PurchaseView", "Customer360Reference",
     "Customer360SiteItem", "Customer360SolutionItem", "Customer360Timeline", "Customer360TimelineEntry", "Customer360TimelineService", "Customer360View",
-    "CustomerConversionResult", "CustomerDocumentProvider", "CustomerPotentialService", "FollowUpService", "LeadAccessService", "LeadActivityContext",
+    "CustomerConversionResult", "CustomerDashboardFoundation", "CustomerDashboardFoundationService", "CustomerDashboardMetric", "CustomerDashboardSection", "CustomerDocumentProvider", "CustomerPotentialService", "DashboardMetricKind", "FollowUpService", "LeadAccessService", "LeadActivityContext",
     "LeadActivityService", "LeadAIContext", "LeadAIProposal", "LeadAIService", "LeadConversionService", "LeadIntelligenceType", "LeadMatch",
     "LeadMatchingService", "LeadQualificationResult", "LeadQualificationService", "PotentialQualificationResult", "PotentialQualificationService",
     "ProjectReferenceProvider", "PurchaseHistoryBoundary", "PurchaseHistoryProvider", "PurchaseHistoryService", "PurchaseHistorySummary", "PurchaseSummaryService",
