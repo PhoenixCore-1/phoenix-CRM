@@ -6,7 +6,9 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
+from phoenix_crm.api import RequestContext
 from phoenix_crm.domain import CustomerActivity, Lead
+from phoenix_crm.services.lead_access import LeadAccessService
 
 
 @dataclass(frozen=True, slots=True)
@@ -22,8 +24,14 @@ class LeadActivityService:
     """Provide lead activity history without creating a second activity model."""
 
     @staticmethod
-    def record_activity(activity: CustomerActivity, lead: Lead) -> CustomerActivity:
+    def record_activity(
+        activity: CustomerActivity,
+        lead: Lead,
+        *,
+        context: RequestContext | None = None,
+    ) -> CustomerActivity:
         """Validate that a lead activity carries the lead reference."""
+        LeadActivityService._require_access(lead, context)
         if activity.tenant_id != lead.tenant_id:
             raise ValueError("Activity and lead must belong to the same tenant")
         if activity.metadata.get("lead_id") != str(lead.id):
@@ -37,8 +45,10 @@ class LeadActivityService:
         *,
         before: datetime | None = None,
         after: datetime | None = None,
+        context: RequestContext | None = None,
     ) -> tuple[LeadActivityContext, ...]:
         """Return a lead's activities newest first using the shared activity model."""
+        LeadActivityService._require_access(lead, context)
         lead_id = str(lead.id)
         history = [
             activity for activity in activities
@@ -60,10 +70,21 @@ class LeadActivityService:
         )
 
     @staticmethod
-    def attach_lead_reference(activity: CustomerActivity, lead: Lead) -> None:
+    def attach_lead_reference(
+        activity: CustomerActivity,
+        lead: Lead,
+        *,
+        context: RequestContext | None = None,
+    ) -> None:
         """Attach the CRM lead identity without introducing a lead foreign-key field."""
+        LeadActivityService._require_access(lead, context)
         if activity.tenant_id != lead.tenant_id:
             raise ValueError("Activity and lead must belong to the same tenant")
         metadata = dict(activity.metadata)
         metadata["lead_id"] = str(lead.id)
         activity.set_communication_context(metadata=metadata)
+
+    @staticmethod
+    def _require_access(lead: Lead, context: RequestContext | None) -> None:
+        if context is not None:
+            LeadAccessService.require_access(lead, context)
