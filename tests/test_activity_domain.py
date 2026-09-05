@@ -1,4 +1,4 @@
-"""Tests for Phase 4.1 customer activity domain."""
+"""Tests for Phase 4.1 and 4.3 customer activity domain."""
 
 from datetime import datetime, timezone
 from uuid import uuid4
@@ -88,3 +88,49 @@ def test_update_details_preserves_occurred_at():
     occurred_at = activity.occurred_at
     activity.update_details(notes="Updated history")
     assert activity.occurred_at == occurred_at
+
+
+def test_activity_supports_site_relationship_context():
+    activity = make_activity()
+    site_id = uuid4()
+    activity.set_relationship_context(site_id=site_id)
+    assert activity.site_id == site_id
+    assert activity.contact_id is None
+    assert activity.site_party_id is None
+
+
+def test_activity_supports_site_party_relationship_context():
+    activity = make_activity()
+    site_party_id = uuid4()
+    activity.set_relationship_context(site_party_id=site_party_id)
+    assert activity.site_party_id == site_party_id
+    assert activity.contact_id is None
+    assert activity.site_id is None
+
+
+def test_activity_supports_combined_relationship_context():
+    activity = make_activity()
+    contact_id = uuid4()
+    site_id = uuid4()
+    site_party_id = uuid4()
+    activity.set_relationship_context(
+        contact_id=contact_id,
+        site_id=site_id,
+        site_party_id=site_party_id,
+    )
+    assert activity.contact_id == contact_id
+    assert activity.site_id == site_id
+    assert activity.site_party_id == site_party_id
+
+
+def test_activity_relationship_context_can_be_cleared():
+    activity = make_activity()
+    activity.set_relationship_context(
+        contact_id=uuid4(),
+        site_id=uuid4(),
+        site_party_id=uuid4(),
+    )
+    activity.set_relationship_context()
+    assert activity.contact_id is None
+    assert activity.site_id is None
+    assert activity.site_party_id is None
