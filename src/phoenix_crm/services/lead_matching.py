@@ -45,10 +45,11 @@ class LeadMatchingService:
             if candidate.id == lead.id or candidate.tenant_id != lead.tenant_id:
                 continue
             fields = cls._lead_fields(lead, candidate)
-            if fields:
-                matches.append(
-                    LeadMatch(candidate.id, "lead", cls._score(fields), tuple(fields))
-                )
+            if not fields or fields == ["name"]:
+                continue
+            matches.append(
+                LeadMatch(candidate.id, "lead", cls._score(fields), tuple(fields))
+            )
         return cls._ordered(matches)
 
     @classmethod
