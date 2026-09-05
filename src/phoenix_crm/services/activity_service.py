@@ -16,12 +16,24 @@ class ActivityService:
     def record_activity(
         activity: CustomerActivity,
         customer: Customer,
+        *,
+        context: RequestContext | None = None,
     ) -> CustomerActivity:
         """Validate and record an activity against its CRM customer."""
         if activity.tenant_id != customer.tenant_id:
             raise ValueError("Activity and customer must belong to the same tenant")
         if activity.customer_id != customer.id:
             raise ValueError("Activity customer does not match the supplied customer")
+        if context is not None:
+            if context.tenant.tenant_id != str(customer.tenant_id):
+                raise PermissionError("Core access scope does not include this tenant")
+            if not context.can_access_resource(str(customer.id)):
+                raise PermissionError("Core access scope does not include this customer")
+            if (
+                activity.performed_by_user_id is not None
+                and str(activity.performed_by_user_id) != context.user.user_id
+            ):
+                raise PermissionError("Activity performer does not match request context user")
         return activity
 
     @staticmethod
