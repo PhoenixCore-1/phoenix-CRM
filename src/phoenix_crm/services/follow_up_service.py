@@ -114,8 +114,6 @@ class FollowUpService:
         if tenant_id is not None:
             items = [item for item in items if item.tenant_id == tenant_id]
         if context is not None:
-            if context.tenant.tenant_id != str(context.tenant.tenant_id):
-                return ()
             if not context.can_access_resource(str(customer_id)):
                 return ()
             items = [item for item in items if str(item.tenant_id) == context.tenant.tenant_id]
