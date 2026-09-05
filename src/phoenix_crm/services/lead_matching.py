@@ -72,25 +72,45 @@ class LeadMatchingService:
     @classmethod
     def _lead_fields(cls, lead: Lead, candidate: Lead) -> list[str]:
         fields: list[str] = []
-        if cls.normalize(lead.name) == cls.normalize(candidate.name):
+
+        lead_name = cls.normalize(lead.name)
+        candidate_name = cls.normalize(candidate.name)
+        if lead_name and candidate_name and lead_name == candidate_name:
             fields.append("name")
-        if lead.email and cls.normalize(lead.email) == cls.normalize(candidate.email):
+
+        lead_email = cls.normalize(lead.email)
+        candidate_email = cls.normalize(candidate.email)
+        if lead_email and candidate_email and lead_email == candidate_email:
             fields.append("email")
-        if lead.phone and cls._phone(lead.phone) == cls._phone(candidate.phone):
+
+        lead_phone = cls._phone(lead.phone)
+        candidate_phone = cls._phone(candidate.phone)
+        if lead_phone and candidate_phone and lead_phone == candidate_phone:
             fields.append("phone")
-        if lead.mobile and cls._phone(lead.mobile) == cls._phone(candidate.mobile):
+
+        lead_mobile = cls._phone(lead.mobile)
+        candidate_mobile = cls._phone(candidate.mobile)
+        if lead_mobile and candidate_mobile and lead_mobile == candidate_mobile:
             fields.append("mobile")
-        if lead.company_name and cls.normalize(lead.company_name) == cls.normalize(candidate.company_name):
+
+        lead_company = cls.normalize(lead.company_name)
+        candidate_company = cls.normalize(candidate.company_name)
+        if lead_company and candidate_company and lead_company == candidate_company:
             fields.append("company_name")
+
         return fields
 
     @classmethod
     def _customer_fields(cls, lead: Lead, customer: Customer) -> list[str]:
         fields: list[str] = []
-        if lead.company_name and cls.normalize(lead.company_name) == cls.normalize(customer.name):
+        lead_company = cls.normalize(lead.company_name)
+        customer_name = cls.normalize(customer.name)
+        if lead_company and customer_name and lead_company == customer_name:
             fields.append("company_name")
-        elif cls.normalize(lead.name) == cls.normalize(customer.name):
-            fields.append("name")
+        else:
+            lead_name = cls.normalize(lead.name)
+            if lead_name and customer_name and lead_name == customer_name:
+                fields.append("name")
         return fields
 
     @staticmethod
