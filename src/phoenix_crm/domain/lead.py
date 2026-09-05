@@ -9,9 +9,14 @@ from uuid import UUID, uuid4
 
 
 class LeadStatus(str, Enum):
-    """Initial lifecycle states supported by the CRM lead domain."""
+    """Lifecycle states supported by the CRM lead domain."""
 
     NEW = "new"
+    QUALIFYING = "qualifying"
+    QUALIFIED = "qualified"
+    POTENTIAL_CUSTOMER = "potential_customer"
+    DISQUALIFIED = "disqualified"
+    CONVERTED = "converted"
 
 
 class LeadSource(str, Enum):
@@ -78,4 +83,33 @@ class Lead:
     def update_notes(self, notes: str | None) -> None:
         """Replace lead notes while preserving the domain timestamp contract."""
         self.notes = self._clean_optional(notes)
+        self.updated_at = datetime.now(timezone.utc)
+
+    def start_qualification(self) -> None:
+        """Move a new lead into the qualification process."""
+        self._transition_from({LeadStatus.NEW}, LeadStatus.QUALIFYING)
+
+    def qualify(self) -> None:
+        """Mark a lead as qualified for continued customer development."""
+        self._transition_from({LeadStatus.QUALIFYING}, LeadStatus.QUALIFIED)
+
+    def mark_potential_customer(self) -> None:
+        """Mark a qualified lead as a potential customer."""
+        self._transition_from({LeadStatus.QUALIFIED}, LeadStatus.POTENTIAL_CUSTOMER)
+
+    def disqualify(self) -> None:
+        """Mark a lead as not currently suitable for conversion."""
+        self._transition_from(
+            {LeadStatus.NEW, LeadStatus.QUALIFYING, LeadStatus.QUALIFIED, LeadStatus.POTENTIAL_CUSTOMER},
+            LeadStatus.DISQUALIFIED,
+        )
+
+    def convert(self) -> None:
+        """Mark a potential customer as converted after conversion validation."""
+        self._transition_from({LeadStatus.POTENTIAL_CUSTOMER}, LeadStatus.CONVERTED)
+
+    def _transition_from(self, allowed: set[LeadStatus], target: LeadStatus) -> None:
+        if self.status not in allowed:
+            raise ValueError(f"Cannot transition lead from {self.status.value} to {target.value}")
+        self.status = target
         self.updated_at = datetime.now(timezone.utc)
