@@ -73,11 +73,6 @@ class LeadMatchingService:
     def _lead_fields(cls, lead: Lead, candidate: Lead) -> list[str]:
         fields: list[str] = []
 
-        lead_name = cls.normalize(lead.name)
-        candidate_name = cls.normalize(candidate.name)
-        if lead_name and candidate_name and lead_name == candidate_name:
-            fields.append("name")
-
         lead_email = cls.normalize(lead.email)
         candidate_email = cls.normalize(candidate.email)
         if lead_email and candidate_email and lead_email == candidate_email:
@@ -92,6 +87,11 @@ class LeadMatchingService:
         candidate_mobile = cls._phone(candidate.mobile)
         if lead_mobile and candidate_mobile and lead_mobile == candidate_mobile:
             fields.append("mobile")
+
+        lead_name = cls.normalize(lead.name)
+        candidate_name = cls.normalize(candidate.name)
+        if lead_name and candidate_name and lead_name == candidate_name:
+            fields.append("name")
 
         lead_company = cls.normalize(lead.company_name)
         candidate_company = cls.normalize(candidate.company_name)
