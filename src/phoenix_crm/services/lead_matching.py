@@ -36,9 +36,9 @@ class LeadMatchingService:
     ) -> list[LeadMatch]:
         """Return same-tenant duplicate candidates ordered by match strength.
 
-        A name-only match is excluded from duplicate detection because names are
-        too ambiguous to establish identity. Name may still be reported as
-        context when another identifying field matches.
+        A name-only match is excluded because names are ambiguous. Name is kept
+        as contextual metadata when another identifying field matches, while
+        duplicate scoring follows the established field weights.
         """
         matches: list[LeadMatch] = []
         for candidate in candidates:
@@ -48,11 +48,12 @@ class LeadMatchingService:
             identifying_fields = [field for field in fields if field != "name"]
             if not identifying_fields:
                 continue
+            score_fields = fields
             matches.append(
                 LeadMatch(
                     candidate.id,
                     "lead",
-                    cls._score(fields),
+                    cls._score(score_fields),
                     tuple(fields),
                 )
             )
@@ -77,32 +78,26 @@ class LeadMatchingService:
     @classmethod
     def _lead_fields(cls, lead: Lead, candidate: Lead) -> list[str]:
         fields: list[str] = []
-
         lead_email = cls.normalize(lead.email)
         candidate_email = cls.normalize(candidate.email)
         if lead_email and candidate_email and lead_email == candidate_email:
             fields.append("email")
-
         lead_phone = cls._phone(lead.phone)
         candidate_phone = cls._phone(candidate.phone)
         if lead_phone and candidate_phone and lead_phone == candidate_phone:
             fields.append("phone")
-
         lead_mobile = cls._phone(lead.mobile)
         candidate_mobile = cls._phone(candidate.mobile)
         if lead_mobile and candidate_mobile and lead_mobile == candidate_mobile:
             fields.append("mobile")
-
         lead_name = cls.normalize(lead.name)
         candidate_name = cls.normalize(candidate.name)
         if lead_name and candidate_name and lead_name == candidate_name:
             fields.append("name")
-
         lead_company = cls.normalize(lead.company_name)
         candidate_company = cls.normalize(candidate.company_name)
         if lead_company and candidate_company and lead_company == candidate_company:
             fields.append("company_name")
-
         return fields
 
     @classmethod
