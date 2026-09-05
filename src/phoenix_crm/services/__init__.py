@@ -20,6 +20,7 @@ from .customer_360_dashboard import CustomerDashboardFoundation, CustomerDashboa
 from .customer_360_kpis import CustomerDashboardKPIService, CustomerDashboardKPIs
 from .customer_call_follow_up_queue import CustomerCallFollowUpQueueService, CRMWorkItemType, CRMWorkQueueItem
 from .customer_dashboard_composition import CustomerDashboardComposition, CustomerDashboardCompositionService
+from .crm_ai_foundation import AIAvailability, CRMAIContext, CRMAIRequest, CRMAIResult, CRMAIService, CoreAICapability
 from .follow_up_service import FollowUpService
 from .lead_access import LeadAccessService
 from .lead_activity import LeadActivityContext, LeadActivityService
@@ -35,6 +36,7 @@ from .purchase_summary import PurchaseHistorySummary, PurchaseSummaryService
 
 __all__ = [
     "ActivityIntegrityService", "ActivityTimelineEntry", "ActivityTimelineService", "ActivityValidationResult", "AIProposal",
+    "AIAvailability", "CRMAIContext", "CRMAIRequest", "CRMAIResult", "CRMAIService", "CoreAICapability",
     "CadenceResult", "CallCadenceService", "CallPlanItem", "CallPlanItemType", "CallPlanningService", "CallPlanTiming", "CallPlanTimingService",
     "CRMIntelligenceService", "CRMIntelligenceType", "CRMWorkItemType", "CRMWorkQueueItem", "Customer360Composition", "Customer360CompositionService", "Customer360ContactItem", "Customer360ContactsSitesSection", "Customer360ContactsSitesService",
     "Customer360DocumentsSection", "Customer360DocumentsService", "Customer360Overview", "Customer360OverviewService",
