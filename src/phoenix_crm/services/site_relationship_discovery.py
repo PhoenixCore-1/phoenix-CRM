@@ -34,6 +34,7 @@ class SiteRelationshipDiscoveryService:
         notes: str | None = None,
     ) -> ProjectSiteParty:
         """Create a CRM relationship record for a discovered site party."""
+        self.validate_site_reference(site)
         return ProjectSiteParty(
             tenant_id=site.tenant_id,
             project_id=site.project_id,
