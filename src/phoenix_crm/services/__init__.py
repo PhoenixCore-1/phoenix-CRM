@@ -23,6 +23,7 @@ from .customer_dashboard_composition import CustomerDashboardComposition, Custom
 from .crm_ai_foundation import AIAvailability, CRMAIContext, CRMAIRequest, CRMAIResult, CRMAIService, CoreAICapability
 from .customer_summary_ai import CustomerSummaryAIService
 from .call_preparation_ai import CallPreparationAIService, CallPreparationContext
+from .next_best_action_ai import NextBestActionAIService, NextBestActionContext
 from .follow_up_service import FollowUpService
 from .lead_access import LeadAccessService
 from .lead_activity import LeadActivityContext, LeadActivityService
@@ -39,7 +40,7 @@ from .purchase_summary import PurchaseHistorySummary, PurchaseSummaryService
 __all__ = [
     "ActivityIntegrityService", "ActivityTimelineEntry", "ActivityTimelineService", "ActivityValidationResult", "AIProposal",
     "AIAvailability", "CRMAIContext", "CRMAIRequest", "CRMAIResult", "CRMAIService", "CoreAICapability", "CustomerSummaryAIService",
-    "CallPreparationAIService", "CallPreparationContext",
+    "CallPreparationAIService", "CallPreparationContext", "NextBestActionAIService", "NextBestActionContext",
     "CadenceResult", "CallCadenceService", "CallPlanItem", "CallPlanItemType", "CallPlanningService", "CallPlanTiming", "CallPlanTimingService",
     "CRMIntelligenceService", "CRMIntelligenceType", "CRMWorkItemType", "CRMWorkQueueItem", "Customer360Composition", "Customer360CompositionService", "Customer360ContactItem", "Customer360ContactsSitesSection", "Customer360ContactsSitesService",
     "Customer360DocumentsSection", "Customer360DocumentsService", "Customer360Overview", "Customer360OverviewService",
