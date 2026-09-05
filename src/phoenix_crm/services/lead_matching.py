@@ -37,16 +37,16 @@ class LeadMatchingService:
         """Return same-tenant duplicate candidates ordered by match strength.
 
         A name-only match is excluded from duplicate detection because names are
-        too ambiguous to establish identity. Name is retained as contextual
-        information when another identifying field also matches.
+        too ambiguous to establish identity. Name may still be reported as
+        context when another identifying field matches.
         """
         matches: list[LeadMatch] = []
         for candidate in candidates:
             if candidate.id == lead.id or candidate.tenant_id != lead.tenant_id:
                 continue
             fields = cls._lead_fields(lead, candidate)
-            scoring_fields = [field for field in fields if field != "name"]
-            if not scoring_fields:
+            identifying_fields = [field for field in fields if field != "name"]
+            if not identifying_fields:
                 continue
             matches.append(
                 LeadMatch(
@@ -71,9 +71,7 @@ class LeadMatchingService:
                 continue
             fields = cls._customer_fields(lead, customer)
             if fields:
-                matches.append(
-                    LeadMatch(customer.id, "customer", cls._score(fields), tuple(fields))
-                )
+                matches.append(LeadMatch(customer.id, "customer", cls._score(fields), tuple(fields)))
         return cls._ordered(matches)
 
     @classmethod
