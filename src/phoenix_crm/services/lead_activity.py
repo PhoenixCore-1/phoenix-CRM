@@ -30,11 +30,11 @@ class LeadActivityService:
         *,
         context: RequestContext | None = None,
     ) -> CustomerActivity:
-        """Validate that a lead activity carries the lead reference."""
+        """Validate that an activity explicitly references the supplied lead."""
         LeadActivityService._require_access(lead, context)
         if activity.tenant_id != lead.tenant_id:
             raise ValueError("Activity and lead must belong to the same tenant")
-        if activity.metadata.get("lead_id") != str(lead.id):
+        if activity.lead_id != lead.id:
             raise ValueError("Activity lead reference does not match the supplied lead")
         return activity
 
@@ -49,11 +49,11 @@ class LeadActivityService:
     ) -> tuple[LeadActivityContext, ...]:
         """Return a lead's activities newest first using the shared activity model."""
         LeadActivityService._require_access(lead, context)
-        lead_id = str(lead.id)
         history = [
-            activity for activity in activities
+            activity
+            for activity in activities
             if activity.tenant_id == lead.tenant_id
-            and activity.metadata.get("lead_id") == lead_id
+            and activity.lead_id == lead.id
         ]
         if after is not None:
             history = [activity for activity in history if activity.occurred_at >= after]
@@ -76,10 +76,13 @@ class LeadActivityService:
         *,
         context: RequestContext | None = None,
     ) -> None:
-        """Attach the CRM lead identity without introducing a lead foreign-key field."""
+        """Attach the explicit CRM lead identity to an activity."""
         LeadActivityService._require_access(lead, context)
         if activity.tenant_id != lead.tenant_id:
             raise ValueError("Activity and lead must belong to the same tenant")
+        if activity.customer_id is not None:
+            activity.customer_id = None
+        activity.lead_id = lead.id
         metadata = dict(activity.metadata)
         metadata["lead_id"] = str(lead.id)
         activity.set_communication_context(metadata=metadata)
