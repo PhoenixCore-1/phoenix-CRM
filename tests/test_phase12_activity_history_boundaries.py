@@ -22,7 +22,7 @@ def ctx(tenant_id, *resource_ids):
 def activity(tenant_id, *, customer_id=None, contact_id=None, site_id=None, site_party_id=None):
     return CustomerActivity(
         tenant_id=tenant_id,
-        customer_id=customer_id,
+        customer_id=customer_id if customer_id is not None else uuid4(),
         activity_type=ActivityType.CALL,
         subject="Boundary test",
         occurred_at=datetime.now(timezone.utc),
