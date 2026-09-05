@@ -29,7 +29,15 @@ def test_published_handler_routes_customer_operation():
         context=Context(),
         payload={"customer_id": "customer-1"},
     )
-    assert result.customer_id == "customer-1"
+    assert result == {
+        "tenant_id": "tenant-1",
+        "customer_id": "customer-1",
+        "name": "Acme",
+        "status": "",
+        "customer_type": "",
+        "call_class": "",
+        "account_owner_id": None,
+    }
     assert provider.calls == [("customer", "tenant-1", "customer-1")]
 
 
@@ -40,17 +48,14 @@ def test_published_handler_routes_context_operation():
         context=Context(),
         payload={"customer_id": "customer-1"},
     )
-    assert result.customer.customer_id == "customer-1"
+    assert result["customer"]["customer_id"] == "customer-1"
+    assert result["tenant_id"] == "tenant-1"
 
 
 def test_published_handler_rejects_missing_customer_id():
     provider = Provider()
     try:
-        CRMPublishedCapabilityHandler(provider)(
-            operation="get_customer",
-            context=Context(),
-            payload={},
-        )
+        CRMPublishedCapabilityHandler(provider)(operation="get_customer", context=Context(), payload={})
     except ValueError as exc:
         assert str(exc) == "customer_id is required"
     else:
@@ -60,11 +65,7 @@ def test_published_handler_rejects_missing_customer_id():
 def test_published_handler_rejects_unknown_operation():
     provider = Provider()
     try:
-        CRMPublishedCapabilityHandler(provider)(
-            operation="delete_customer",
-            context=Context(),
-            payload={"customer_id": "customer-1"},
-        )
+        CRMPublishedCapabilityHandler(provider)(operation="delete_customer", context=Context(), payload={"customer_id": "customer-1"})
     except ValueError as exc:
         assert str(exc) == "Unsupported CRM operation: delete_customer"
     else:
