@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from uuid import UUID
 
-from phoenix_crm.domain import Contact, Customer, CustomerActivity, CustomerSite, ProjectSiteParty
+from phoenix_crm.domain import Contact, Customer, CustomerActivity, CustomerSite, Lead, ProjectSiteParty
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,6 +29,8 @@ class ActivityIntegrityService:
     ) -> ActivityValidationResult:
         errors: list[str] = []
 
+        if activity.lead_id is not None:
+            errors.append("Customer activity cannot reference both a customer and a lead")
         if activity.tenant_id != customer.tenant_id:
             errors.append("Activity and customer must belong to the same tenant")
         if activity.customer_id != customer.id:
@@ -71,6 +72,21 @@ class ActivityIntegrityService:
         return ActivityValidationResult(valid=not errors, errors=tuple(errors))
 
     @staticmethod
+    def validate_lead(
+        activity: CustomerActivity,
+        lead: Lead,
+    ) -> ActivityValidationResult:
+        """Validate a lead activity against its explicit lead relationship."""
+        errors: list[str] = []
+        if activity.customer_id is not None:
+            errors.append("Lead activity cannot reference a customer")
+        if activity.tenant_id != lead.tenant_id:
+            errors.append("Activity and lead must belong to the same tenant")
+        if activity.lead_id != lead.id:
+            errors.append("Activity lead does not match the supplied lead")
+        return ActivityValidationResult(valid=not errors, errors=tuple(errors))
+
+    @staticmethod
     def require_valid(
         activity: CustomerActivity,
         customer: Customer,
@@ -79,7 +95,7 @@ class ActivityIntegrityService:
         site: CustomerSite | None = None,
         site_party: ProjectSiteParty | None = None,
     ) -> None:
-        """Raise ValueError when activity relationship integrity fails."""
+        """Raise ValueError when customer activity relationship integrity fails."""
         result = ActivityIntegrityService.validate(
             activity,
             customer,
@@ -87,5 +103,12 @@ class ActivityIntegrityService:
             site=site,
             site_party=site_party,
         )
+        if not result.valid:
+            raise ValueError("; ".join(result.errors))
+
+    @staticmethod
+    def require_valid_lead(activity: CustomerActivity, lead: Lead) -> None:
+        """Raise ValueError when lead activity relationship integrity fails."""
+        result = ActivityIntegrityService.validate_lead(activity, lead)
         if not result.valid:
             raise ValueError("; ".join(result.errors))
