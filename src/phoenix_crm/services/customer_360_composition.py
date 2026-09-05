@@ -64,8 +64,10 @@ class Customer360CompositionService:
             raise ValueError("Customer and Customer 360 view do not match")
         Customer360CompositionService._require_access(customer, request_context)
 
+        if overview.view.tenant_id != customer.tenant_id or overview.view.customer_id != customer.id:
+            raise ValueError("Customer 360 section does not match customer")
+
         sections = (
-            overview,
             timeline,
             purchases,
             potential,
