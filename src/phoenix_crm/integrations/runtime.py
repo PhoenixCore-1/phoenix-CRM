@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import asdict
 from typing import Protocol
 
 from phoenix_crm.api.published import (
@@ -37,16 +38,18 @@ class CRMPublishedCapabilityHandler:
             raise ValueError("customer_id is required")
 
         if operation == "get_customer":
-            return self._provider.get_customer(
+            result = self._provider.get_customer(
                 tenant_id=tenant_id,
                 customer_id=customer_id,
             )
+            return asdict(result) if result is not None else None
 
         if operation == "get_customer_context":
-            return self._provider.get_customer_context(
+            result = self._provider.get_customer_context(
                 tenant_id=tenant_id,
                 customer_id=customer_id,
             )
+            return asdict(result) if result is not None else None
 
         raise ValueError(f"Unsupported CRM operation: {operation}")
 
