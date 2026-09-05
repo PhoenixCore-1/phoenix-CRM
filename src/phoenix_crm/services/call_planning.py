@@ -7,7 +7,7 @@ from datetime import datetime
 from enum import Enum
 from uuid import UUID
 
-from phoenix_crm.domain import Customer, CustomerActivity, CustomerFollowUp
+from phoenix_crm.domain import Customer, CustomerActivity, CustomerCallClass, CustomerFollowUp, FollowUpStatus
 from phoenix_crm.services.call_cadence import CallCadenceService
 
 
@@ -29,22 +29,23 @@ class CallPlanItem:
     follow_up_id: UUID | None = None
 
 
+@dataclass(frozen=True, slots=True)
 class CallPlanningService:
     """Build a deterministic call-planning queue without owning scheduling policy."""
 
     @staticmethod
     def build(
         customers: list[Customer],
-        call_classes: dict[UUID, object],
+        call_classes: dict[UUID, CustomerCallClass],
         activities: list[CustomerActivity],
         follow_ups: list[CustomerFollowUp],
         *,
         reference_at: datetime,
     ) -> tuple[CallPlanItem, ...]:
-        """Build customer cadence and follow-up items for planning.
+        """Build actionable customer cadence and follow-up items.
 
-        This foundation only assembles actionable items. Temporal overdue and
-        upcoming classification remains a later phase.
+        Completed, cancelled, and rescheduled follow-ups are excluded. Related
+        records are restricted to the current customer's tenant boundary.
         """
         items: list[CallPlanItem] = []
         for customer in customers:
@@ -67,7 +68,11 @@ class CallPlanningService:
                     )
 
             for follow_up in follow_ups:
+                if follow_up.tenant_id != customer.tenant_id:
+                    continue
                 if follow_up.customer_id != customer.id:
+                    continue
+                if follow_up.status not in {FollowUpStatus.PLANNED, FollowUpStatus.DUE}:
                     continue
                 items.append(
                     CallPlanItem(
@@ -79,7 +84,14 @@ class CallPlanningService:
                     )
                 )
 
-        items.sort(key=lambda item: (item.due_at, str(item.customer_id), item.item_type.value, str(item.follow_up_id or "")))
+        items.sort(
+            key=lambda item: (
+                item.due_at,
+                str(item.customer_id),
+                item.item_type.value,
+                str(item.follow_up_id or ""),
+            )
+        )
         return tuple(items)
 
     @staticmethod
