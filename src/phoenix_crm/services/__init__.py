@@ -19,6 +19,7 @@ from .customer_360_composition import Customer360Composition, Customer360Composi
 from .customer_360_dashboard import CustomerDashboardFoundation, CustomerDashboardFoundationService, CustomerDashboardMetric, CustomerDashboardSection, DashboardMetricKind
 from .customer_360_kpis import CustomerDashboardKPIService, CustomerDashboardKPIs
 from .customer_call_follow_up_queue import CustomerCallFollowUpQueueService, CRMWorkItemType, CRMWorkQueueItem
+from .customer_dashboard_composition import CustomerDashboardComposition, CustomerDashboardCompositionService
 from .follow_up_service import FollowUpService
 from .lead_access import LeadAccessService
 from .lead_activity import LeadActivityContext, LeadActivityService
@@ -40,7 +41,7 @@ __all__ = [
     "Customer360PotentialItem", "Customer360PotentialSection", "Customer360PotentialService", "Customer360ProjectSiteSection", "Customer360ProjectsService",
     "Customer360PurchaseSection", "Customer360PurchaseSectionService", "Customer360PurchaseService", "Customer360PurchaseView", "Customer360Reference",
     "Customer360SiteItem", "Customer360SolutionItem", "Customer360Timeline", "Customer360TimelineEntry", "Customer360TimelineService", "Customer360View",
-    "CustomerCallFollowUpQueueService", "CustomerConversionResult", "CustomerDashboardFoundation", "CustomerDashboardFoundationService", "CustomerDashboardKPIService", "CustomerDashboardKPIs", "CustomerDashboardMetric", "CustomerDashboardSection", "CustomerDocumentProvider", "CustomerPotentialService", "DashboardMetricKind", "FollowUpService", "LeadAccessService", "LeadActivityContext",
+    "CustomerCallFollowUpQueueService", "CustomerConversionResult", "CustomerDashboardComposition", "CustomerDashboardCompositionService", "CustomerDashboardFoundation", "CustomerDashboardFoundationService", "CustomerDashboardKPIService", "CustomerDashboardKPIs", "CustomerDashboardMetric", "CustomerDashboardSection", "CustomerDocumentProvider", "CustomerPotentialService", "DashboardMetricKind", "FollowUpService", "LeadAccessService", "LeadActivityContext",
     "LeadActivityService", "LeadAIContext", "LeadAIProposal", "LeadAIService", "LeadConversionService", "LeadIntelligenceType", "LeadMatch",
     "LeadMatchingService", "LeadQualificationResult", "LeadQualificationService", "PotentialQualificationResult", "PotentialQualificationService",
     "ProjectReferenceProvider", "PurchaseHistoryBoundary", "PurchaseHistoryProvider", "PurchaseHistoryService", "PurchaseHistorySummary", "PurchaseSummaryService",
