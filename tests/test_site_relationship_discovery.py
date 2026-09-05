@@ -100,18 +100,18 @@ def test_validate_site_reference_accepts_complete_reference() -> None:
 
 
 def test_validate_site_reference_rejects_empty_tenant() -> None:
-    site = ProjectSiteReference(UUID(int=0), uuid4(), uuid4())
+    site = ProjectSiteReference(project_id=uuid4(), project_site_id=uuid4(), tenant_id=UUID(int=0))
     with pytest.raises(ValueError, match="tenant ID"):
         SiteRelationshipDiscoveryService.validate_site_reference(site)
 
 
 def test_validate_site_reference_rejects_empty_project() -> None:
-    site = ProjectSiteReference(uuid4(), UUID(int=0), uuid4())
+    site = ProjectSiteReference(project_id=UUID(int=0), project_site_id=uuid4(), tenant_id=uuid4())
     with pytest.raises(ValueError, match="Project reference"):
         SiteRelationshipDiscoveryService.validate_site_reference(site)
 
 
 def test_validate_site_reference_rejects_empty_project_site() -> None:
-    site = ProjectSiteReference(uuid4(), uuid4(), UUID(int=0))
+    site = ProjectSiteReference(project_id=uuid4(), project_site_id=UUID(int=0), tenant_id=uuid4())
     with pytest.raises(ValueError, match="Project site reference"):
         SiteRelationshipDiscoveryService.validate_site_reference(site)
