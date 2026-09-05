@@ -68,6 +68,9 @@ class Customer:
 
     Core remains authoritative for tenant identity and access scope. The CRM
     domain stores only the Core identifiers it needs to apply business rules.
+
+    Contact and site relationships are represented by their CRM entity IDs.
+    The Customer aggregate does not own or duplicate those entities.
     """
 
     tenant_id: UUID
@@ -78,6 +81,8 @@ class Customer:
     status: CustomerStatus = CustomerStatus.ACTIVE
     account_owner_id: UUID | None = None
     access_scope_id: UUID | None = None
+    contact_ids: set[UUID] = field(default_factory=set)
+    site_ids: set[UUID] = field(default_factory=set)
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -91,4 +96,24 @@ class Customer:
         if not name.strip():
             raise ValueError("Customer name cannot be empty")
         self.name = name.strip()
+        self.updated_at = datetime.now(timezone.utc)
+
+    def add_contact(self, contact_id: UUID) -> None:
+        """Associate an existing CRM contact with this customer."""
+        self.contact_ids.add(contact_id)
+        self.updated_at = datetime.now(timezone.utc)
+
+    def remove_contact(self, contact_id: UUID) -> None:
+        """Remove a CRM contact association from this customer."""
+        self.contact_ids.discard(contact_id)
+        self.updated_at = datetime.now(timezone.utc)
+
+    def add_site(self, site_id: UUID) -> None:
+        """Associate an existing CRM site with this customer."""
+        self.site_ids.add(site_id)
+        self.updated_at = datetime.now(timezone.utc)
+
+    def remove_site(self, site_id: UUID) -> None:
+        """Remove a CRM site association from this customer."""
+        self.site_ids.discard(site_id)
         self.updated_at = datetime.now(timezone.utc)
