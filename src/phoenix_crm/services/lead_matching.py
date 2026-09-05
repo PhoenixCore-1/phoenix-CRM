@@ -41,18 +41,27 @@ class LeadMatchingService:
     ) -> list[LeadMatch]:
         """Return same-tenant lead candidates ordered by strongest match.
 
-        A name-only match is intentionally not considered a duplicate because
-        names are too ambiguous to prevent false positives. At least one
-        identifying contact/company signal must be present.
+        Name is useful context when another identifying signal matches, but is
+        intentionally excluded from duplicate scoring by itself and does not
+        strengthen an otherwise contact/company-only match. This prevents a
+        generic or duplicated person/company name from creating false positives.
         """
         matches: list[LeadMatch] = []
         for candidate in candidates:
             if candidate.id == lead.id or candidate.tenant_id != lead.tenant_id:
                 continue
             fields = cls._lead_fields(lead, candidate)
-            if not fields or fields == ["name"]:
+            identity_fields = [field for field in fields if field != "name"]
+            if not identity_fields:
                 continue
-            matches.append(LeadMatch(candidate.id, "lead", cls._score(fields), tuple(fields)))
+            matches.append(
+                LeadMatch(
+                    candidate.id,
+                    "lead",
+                    cls._score(identity_fields),
+                    tuple(identity_fields),
+                )
+            )
         return cls._ordered(matches)
 
     @classmethod
@@ -68,7 +77,9 @@ class LeadMatchingService:
                 continue
             fields = cls._customer_fields(lead, customer)
             if fields:
-                matches.append(LeadMatch(customer.id, "customer", cls._score(fields), tuple(fields)))
+                matches.append(
+                    LeadMatch(customer.id, "customer", cls._score(fields), tuple(fields))
+                )
         return cls._ordered(matches)
 
     @classmethod
