@@ -36,8 +36,9 @@ class LeadMatchingService:
     ) -> list[LeadMatch]:
         """Return same-tenant duplicate candidates ordered by identity strength.
 
-        Name alone is never sufficient. Name is returned only as context when at
-        least one independent identifying field matches and does not affect score.
+        A candidate must match at least one identifying signal (email, phone,
+        mobile, or company). Name alone is never sufficient. When an identifying
+        signal matches, a matching name is retained only as contextual metadata.
         """
         matches: list[LeadMatch] = []
         for candidate in candidates:
@@ -62,14 +63,21 @@ class LeadMatchingService:
         lead: Lead,
         customers: list[Customer] | tuple[Customer, ...],
     ) -> list[LeadMatch]:
-        """Return same-tenant customer candidates for a lead."""
+        """Return same-tenant customer candidates using company identity."""
         matches: list[LeadMatch] = []
         for customer in customers:
             if customer.tenant_id != lead.tenant_id:
                 continue
             fields = cls._customer_fields(lead, customer)
             if fields:
-                matches.append(LeadMatch(customer.id, "customer", cls._score(fields), tuple(fields)))
+                matches.append(
+                    LeadMatch(
+                        customer.id,
+                        "customer",
+                        cls._score(fields),
+                        tuple(fields),
+                    )
+                )
         return cls._ordered(matches)
 
     @classmethod
@@ -110,12 +118,11 @@ class LeadMatchingService:
 
     @classmethod
     def _customer_fields(cls, lead: Lead, customer: Customer) -> list[str]:
-        fields: list[str] = []
         lead_company = cls.normalize(lead.company_name)
         customer_name = cls.normalize(customer.name)
         if lead_company and customer_name and lead_company == customer_name:
-            fields.append("company_name")
-        return fields
+            return ["company_name"]
+        return []
 
     @staticmethod
     def _phone(value: str | None) -> str:
