@@ -19,12 +19,7 @@ class LeadMatch:
 
 
 class LeadMatchingService:
-    """Find likely existing CRM records without automatically merging or linking them.
-
-    Matching is intentionally deterministic and conservative. Tenant isolation is
-    enforced before comparing records, and callers remain responsible for the
-    final duplicate decision or customer link.
-    """
+    """Find likely existing CRM records without automatically merging or linking them."""
 
     @staticmethod
     def normalize(value: str | None) -> str:
@@ -39,28 +34,17 @@ class LeadMatchingService:
         lead: Lead,
         candidates: list[Lead] | tuple[Lead, ...],
     ) -> list[LeadMatch]:
-        """Return same-tenant lead candidates ordered by strongest match.
-
-        Name is useful context when another identifying signal matches, but is
-        intentionally excluded from duplicate scoring by itself and does not
-        strengthen an otherwise contact/company-only match. This prevents a
-        generic or duplicated person/company name from creating false positives.
-        """
+        """Return same-tenant duplicate candidates ordered by match strength."""
         matches: list[LeadMatch] = []
         for candidate in candidates:
             if candidate.id == lead.id or candidate.tenant_id != lead.tenant_id:
                 continue
             fields = cls._lead_fields(lead, candidate)
-            identity_fields = [field for field in fields if field != "name"]
-            if not identity_fields:
+            non_name_fields = [field for field in fields if field != "name"]
+            if not non_name_fields:
                 continue
             matches.append(
-                LeadMatch(
-                    candidate.id,
-                    "lead",
-                    cls._score(identity_fields),
-                    tuple(identity_fields),
-                )
+                LeadMatch(candidate.id, "lead", cls._score(non_name_fields), tuple(fields))
             )
         return cls._ordered(matches)
 
@@ -77,9 +61,7 @@ class LeadMatchingService:
                 continue
             fields = cls._customer_fields(lead, customer)
             if fields:
-                matches.append(
-                    LeadMatch(customer.id, "customer", cls._score(fields), tuple(fields))
-                )
+                matches.append(LeadMatch(customer.id, "customer", cls._score(fields), tuple(fields)))
         return cls._ordered(matches)
 
     @classmethod
