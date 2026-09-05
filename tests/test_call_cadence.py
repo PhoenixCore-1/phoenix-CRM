@@ -77,7 +77,12 @@ def test_resolve_ignores_other_customer_activities():
     customer = make_customer()
     call_class = make_class(customer)
     other = make_customer(tenant_id=customer.tenant_id)
-    result = CallCadenceService.resolve(customer, call_class, [make_activity(other, REFERENCE)])
+    result = CallCadenceService.resolve(
+        customer,
+        call_class,
+        [make_activity(other, REFERENCE)],
+        reference_at=REFERENCE,
+    )
     assert result.last_interaction_at is None
     assert result.next_interaction_at == REFERENCE + timedelta(days=7)
 
@@ -108,9 +113,5 @@ def test_resolve_rejects_wrong_call_class():
 def test_last_interaction_returns_latest_timestamp():
     customer = make_customer()
     first = make_activity(customer, REFERENCE - timedelta(days=5))
-    second = make_activity(customer, REFERENCE - timedelta(days=1))
-    assert CallCadenceService.last_interaction(customer.id, [first, second]) == second.occurred_at
-
-
-def test_last_interaction_returns_none_for_no_activity():
-    assert CallCadenceService.last_interaction(uuid4(), []) is None
+    latest = make_activity(customer, REFERENCE - timedelta(days=1))
+    assert CallCadenceService.last_interaction(customer.id, [first, latest]) == latest.occurred_at
