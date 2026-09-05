@@ -1,4 +1,4 @@
-"""Tests for Phase 6.1 lead domain."""
+"""Tests for Phase 6 lead domain."""
 
 from datetime import datetime, timezone
 from uuid import uuid4
@@ -100,3 +100,65 @@ def test_lead_timestamps_are_timezone_aware():
     assert lead.updated_at.tzinfo is not None
     assert lead.created_at.utcoffset() is not None
     assert lead.updated_at.utcoffset() is not None
+
+
+def test_lead_can_follow_primary_lifecycle_to_conversion():
+    lead = make_lead()
+    lead.start_qualification()
+    assert lead.status is LeadStatus.QUALIFYING
+    lead.qualify()
+    assert lead.status is LeadStatus.QUALIFIED
+    lead.mark_potential_customer()
+    assert lead.status is LeadStatus.POTENTIAL_CUSTOMER
+    lead.convert()
+    assert lead.status is LeadStatus.CONVERTED
+
+
+def test_lead_can_be_disqualified_before_conversion():
+    for status_action in ("new", "qualifying", "qualified", "potential"):
+        lead = make_lead()
+        if status_action == "qualifying":
+            lead.start_qualification()
+        elif status_action == "qualified":
+            lead.start_qualification()
+            lead.qualify()
+        elif status_action == "potential":
+            lead.start_qualification()
+            lead.qualify()
+            lead.mark_potential_customer()
+        lead.disqualify()
+        assert lead.status is LeadStatus.DISQUALIFIED
+
+
+def test_lead_rejects_invalid_lifecycle_transitions():
+    lead = make_lead()
+    with pytest.raises(ValueError):
+        lead.qualify()
+    with pytest.raises(ValueError):
+        lead.mark_potential_customer()
+    with pytest.raises(ValueError):
+        lead.convert()
+
+
+def test_terminal_lead_states_cannot_be_reopened_by_domain_methods():
+    lead = make_lead()
+    lead.disqualify()
+    for action in (lead.start_qualification, lead.qualify, lead.mark_potential_customer, lead.disqualify, lead.convert):
+        with pytest.raises(ValueError):
+            action()
+
+    converted = make_lead()
+    converted.start_qualification()
+    converted.qualify()
+    converted.mark_potential_customer()
+    converted.convert()
+    for action in (converted.start_qualification, converted.qualify, converted.mark_potential_customer, converted.disqualify, converted.convert):
+        with pytest.raises(ValueError):
+            action()
+
+
+def test_lifecycle_transition_updates_timestamp():
+    lead = make_lead()
+    before = lead.updated_at
+    lead.start_qualification()
+    assert lead.updated_at >= before
