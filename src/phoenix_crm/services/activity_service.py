@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from uuid import UUID
 
-from phoenix_crm.domain import Activity, Customer
+from phoenix_crm.domain import Customer, CustomerActivity
 
 
 class ActivityService:
@@ -13,9 +13,9 @@ class ActivityService:
 
     @staticmethod
     def record_activity(
-        activity: Activity,
+        activity: CustomerActivity,
         customer: Customer,
-    ) -> Activity:
+    ) -> CustomerActivity:
         """Validate and record an activity against its CRM customer."""
         if activity.tenant_id != customer.tenant_id:
             raise ValueError("Activity and customer must belong to the same tenant")
@@ -26,11 +26,11 @@ class ActivityService:
     @staticmethod
     def history_for_customer(
         customer_id: UUID,
-        activities: list[Activity],
+        activities: list[CustomerActivity],
         *,
         before: datetime | None = None,
         after: datetime | None = None,
-    ) -> tuple[Activity, ...]:
+    ) -> tuple[CustomerActivity, ...]:
         """Return a customer's activities in newest-first chronological order."""
         history = [activity for activity in activities if activity.customer_id == customer_id]
         if after is not None:
@@ -43,8 +43,8 @@ class ActivityService:
     @staticmethod
     def history_for_contact(
         contact_id: UUID,
-        activities: list[Activity],
-    ) -> tuple[Activity, ...]:
+        activities: list[CustomerActivity],
+    ) -> tuple[CustomerActivity, ...]:
         """Return activities associated with a specific contact, newest first."""
         history = [activity for activity in activities if activity.contact_id == contact_id]
         history.sort(key=lambda activity: (activity.occurred_at, str(activity.id)), reverse=True)
