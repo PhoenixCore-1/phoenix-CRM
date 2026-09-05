@@ -2,6 +2,7 @@
 
 from .contact import Contact, ContactStatus
 from .customer import CallCadence, Customer, CustomerCallClass, CustomerStatus, CustomerType
+from .site import CustomerSite, CustomerSiteStatus
 
 __all__ = [
     "CallCadence",
@@ -9,6 +10,8 @@ __all__ = [
     "ContactStatus",
     "Customer",
     "CustomerCallClass",
+    "CustomerSite",
+    "CustomerSiteStatus",
     "CustomerStatus",
     "CustomerType",
 ]
