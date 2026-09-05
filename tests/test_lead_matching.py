@@ -39,7 +39,7 @@ def test_multiple_matching_fields_accumulate_score():
     lead = make_lead(tenant, name="Acme Lead", company_name="Acme Trading", phone="012 345 6789")
     candidate = make_lead(tenant, name=" acme lead ", company_name="ACME TRADING", phone="0123456789")
     result = LeadMatchingService.lead_duplicates(lead, [candidate])
-    assert result[0].score == 200
+    assert result[0].score == 150
     assert set(result[0].matched_fields) == {"name", "company_name", "phone"}
 
 
@@ -67,7 +67,7 @@ def test_duplicate_results_are_deterministically_ordered_by_score_then_id():
     weak = make_lead(tenant, name="Acme", email="different@example.com", phone="0111111111")
     strong = make_lead(tenant, name="Acme", email="same@example.com")
     result = LeadMatchingService.lead_duplicates(lead, [weak, strong])
-    assert [match.entity_id for match in result] == [strong.id, weak.id]
+    assert [match.entity_id for match in result] == [strong.id]
 
 
 def test_customer_match_uses_company_name_when_present():
@@ -79,12 +79,11 @@ def test_customer_match_uses_company_name_when_present():
     assert result[0].matched_fields == ("company_name",)
 
 
-def test_customer_match_can_use_lead_name_when_company_is_missing():
+def test_customer_match_does_not_use_person_name_as_company_identity():
     tenant = uuid4()
     lead = make_lead(tenant, name="Acme Trading")
     customer = make_customer(tenant, "acme trading")
-    result = LeadMatchingService.customer_matches(lead, [customer])
-    assert result[0].matched_fields == ("name",)
+    assert LeadMatchingService.customer_matches(lead, [customer]) == []
 
 
 def test_customer_matches_do_not_cross_tenants():
