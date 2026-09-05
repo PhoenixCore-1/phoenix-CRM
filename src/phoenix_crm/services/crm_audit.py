@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from types import MappingProxyType
 from typing import Mapping
 from uuid import UUID, uuid4
 
@@ -30,7 +31,7 @@ class CRMAuditEvent:
         object.__setattr__(self, "action", self.action.strip())
         object.__setattr__(self, "resource_type", self.resource_type.strip())
         object.__setattr__(self, "correlation_id", self.correlation_id.strip())
-        object.__setattr__(self, "metadata", dict(self.metadata))
+        object.__setattr__(self, "metadata", MappingProxyType(dict(self.metadata)))
 
 
 class CRMAuditService:
