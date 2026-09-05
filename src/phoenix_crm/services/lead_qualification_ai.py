@@ -39,15 +39,9 @@ class LeadQualificationAIService:
         values: Mapping[str, object],
         request_context: RequestContext | None = None,
     ) -> LeadQualificationAIContext:
-        """Build tenant/access-scoped lead qualification context.
-
-        CRM's Core AI foundation is customer-resource oriented today, so lead
-        authorization is represented by the lead resource identifier at the
-        same Core boundary. No lead persistence or implementation is exposed
-        to an AI provider.
-        """
+        """Build tenant/access-scoped lead qualification context."""
         if request_context is not None:
-            if request_context.tenant.id != str(tenant_id):
+            if request_context.tenant.tenant_id != str(tenant_id):
                 raise ValueError("request context tenant does not match lead qualification tenant")
             if not request_context.can_access_resource(str(lead_id)):
                 raise PermissionError("lead is outside the request access scope")
@@ -68,9 +62,9 @@ class LeadQualificationAIService:
     ) -> CRMAIResult:
         """Evaluate lead qualification assistance; never qualify or convert."""
         if request_context is not None:
-            if request_context.tenant.id != str(tenant_id):
+            if request_context.tenant.tenant_id != str(tenant_id):
                 raise ValueError("request context tenant does not match lead qualification tenant")
-            if request_context.user.id != str(user_id):
+            if request_context.user.user_id != str(user_id):
                 raise PermissionError("request user does not match lead qualification user")
             if not request_context.can_access_resource(str(context.lead_id)):
                 raise PermissionError("lead is outside the request access scope")
