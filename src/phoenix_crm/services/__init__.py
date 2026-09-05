@@ -3,6 +3,7 @@
 from .activity_timeline import ActivityTimelineEntry, ActivityTimelineService
 from .activity_validation import ActivityIntegrityService, ActivityValidationResult
 from .call_cadence import CadenceResult, CallCadenceService
+from .call_planning import CallPlanItem, CallPlanItemType, CallPlanningService
 from .follow_up_service import FollowUpService
 
 __all__ = [
@@ -12,5 +13,8 @@ __all__ = [
     "ActivityValidationResult",
     "CadenceResult",
     "CallCadenceService",
+    "CallPlanItem",
+    "CallPlanItemType",
+    "CallPlanningService",
     "FollowUpService",
 ]
