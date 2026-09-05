@@ -1,7 +1,7 @@
 """Tests for Phase 10.5/10.6 CRM dashboard composition and hardening."""
 
 from datetime import datetime, timedelta, timezone
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 
@@ -81,9 +81,10 @@ def test_kpi_tenant_mismatch_is_rejected():
 
 def test_core_tenant_scope_is_enforced():
     tenant_id = uuid4()
-    context = RequestContext(tenant=TenantContext(str(uuid4())), user=UserContext(str(uuid4())))
+    user_id = uuid4()
+    context = RequestContext(tenant=TenantContext(str(uuid4())), user=UserContext(str(user_id)))
     with pytest.raises(PermissionError, match="tenant"):
-        CustomerDashboardCompositionService.build(tenant_id=tenant_id, user_id=uuid4(), kpis=_kpis(tenant_id), reference_at=datetime(2026, 9, 5, tzinfo=timezone.utc), request_context=context)
+        CustomerDashboardCompositionService.build(tenant_id=tenant_id, user_id=user_id, kpis=_kpis(tenant_id), reference_at=datetime(2026, 9, 5, tzinfo=timezone.utc), request_context=context)
 
 
 def test_core_matching_tenant_is_accepted():
@@ -95,7 +96,8 @@ def test_core_matching_tenant_is_accepted():
 
 
 def test_composition_is_read_only():
-    result = CustomerDashboardCompositionService.build(tenant_id=uuid4(), user_id=uuid4(), kpis=_kpis(uuid4()), reference_at=datetime(2026, 9, 5, tzinfo=timezone.utc))
+    tenant_id = uuid4()
+    result = CustomerDashboardCompositionService.build(tenant_id=tenant_id, user_id=uuid4(), kpis=_kpis(tenant_id), reference_at=datetime(2026, 9, 5, tzinfo=timezone.utc))
     with pytest.raises((AttributeError, TypeError)):
         result.sections = ()
     assert CustomerStatus.ACTIVE.value == "active"
