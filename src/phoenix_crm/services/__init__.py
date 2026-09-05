@@ -2,6 +2,7 @@
 
 from .activity_timeline import ActivityTimelineEntry, ActivityTimelineService
 from .activity_validation import ActivityIntegrityService, ActivityValidationResult
+from .call_cadence import CadenceResult, CallCadenceService
 from .follow_up_service import FollowUpService
 
 __all__ = [
@@ -9,5 +10,7 @@ __all__ = [
     "ActivityTimelineEntry",
     "ActivityTimelineService",
     "ActivityValidationResult",
+    "CadenceResult",
+    "CallCadenceService",
     "FollowUpService",
 ]
