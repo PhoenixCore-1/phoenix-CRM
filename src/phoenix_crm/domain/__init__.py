@@ -24,7 +24,6 @@ __all__ = [
     "ActivitySource",
     "ActivityType",
     "CallCadence",
-    "CallClass",
     "Contact",
     "ContactStatus",
     "Customer",
