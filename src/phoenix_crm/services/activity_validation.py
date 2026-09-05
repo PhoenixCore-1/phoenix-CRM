@@ -79,11 +79,11 @@ class ActivityIntegrityService:
         """Validate a lead activity against its explicit lead relationship."""
         errors: list[str] = []
         if activity.customer_id is not None:
-            errors.append("Lead activity cannot reference a customer")
+            errors.append("Lead activity cannot reference a customer; lead reference is required")
         if activity.tenant_id != lead.tenant_id:
             errors.append("Activity and lead must belong to the same tenant")
         if activity.lead_id != lead.id:
-            errors.append("Activity lead does not match the supplied lead")
+            errors.append("Activity lead reference does not match the supplied lead")
         return ActivityValidationResult(valid=not errors, errors=tuple(errors))
 
     @staticmethod
