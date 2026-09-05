@@ -6,8 +6,8 @@ from uuid import uuid4
 import pytest
 
 from phoenix_crm.api import AccessScopeContext, RequestContext, TenantContext, UserContext
-from phoenix_crm.domain import ActivityType, Customer, CustomerActivity, CustomerFollowUp, CustomerStatus, FollowUpStatus
-from phoenix_crm.services import CRMAuditService, CRMReportingService
+from phoenix_crm.domain import ActivityType, Customer, CustomerActivity, CustomerFollowUp, CustomerStatus, FollowUpStatus, Lead, LeadSource
+from phoenix_crm.services import CRMAuditService, CRMReportingService, LeadActivityService
 
 
 def ctx(tenant_id, user_id, *resource_ids):
@@ -107,3 +107,46 @@ def test_closed_customer_is_not_counted_as_active():
     assert result.total_customers == 1
     assert result.active_customers == 0
     assert result.closed_customers == 1
+
+
+def test_activity_can_be_lead_only_without_fake_customer_reference():
+    lead = Lead(uuid4(), "Lead", LeadSource.MANUAL_ENTRY)
+    activity = CustomerActivity(
+        tenant_id=lead.tenant_id,
+        customer_id=None,
+        lead_id=lead.id,
+        activity_type=ActivityType.CALL,
+        subject="Lead call",
+        occurred_at=datetime.now(timezone.utc),
+    )
+    assert activity.customer_id is None
+    assert activity.lead_id == lead.id
+
+
+def test_lead_activity_attachment_sets_explicit_lead_reference():
+    lead = Lead(uuid4(), "Lead", LeadSource.MANUAL_ENTRY)
+    activity = CustomerActivity(
+        tenant_id=lead.tenant_id,
+        customer_id=uuid4(),
+        activity_type=ActivityType.CALL,
+        subject="Lead call",
+        occurred_at=datetime.now(timezone.utc),
+    )
+    LeadActivityService.attach_lead_reference(activity, lead)
+    assert activity.customer_id is None
+    assert activity.lead_id == lead.id
+    assert LeadActivityService.record_activity(activity, lead) is activity
+
+
+def test_lead_activity_rejects_foreign_explicit_reference():
+    lead = Lead(uuid4(), "Lead", LeadSource.MANUAL_ENTRY)
+    activity = CustomerActivity(
+        tenant_id=lead.tenant_id,
+        customer_id=None,
+        lead_id=uuid4(),
+        activity_type=ActivityType.CALL,
+        subject="Lead call",
+        occurred_at=datetime.now(timezone.utc),
+    )
+    with pytest.raises(ValueError, match="lead reference"):
+        LeadActivityService.record_activity(activity, lead)
