@@ -18,7 +18,7 @@ def request_context(tenant_id, user_id, customer_id):
 
 
 def make_customer(tenant_id):
-    return Customer(tenant_id=tenant_id, name="Boundary Customer")
+    return Customer(tenant_id, "Boundary Customer", uuid4(), uuid4())
 
 
 def make_activity(customer, performer=None):
