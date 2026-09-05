@@ -5,7 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from uuid import UUID
 
+from phoenix_crm.api import RequestContext
 from phoenix_crm.domain import Lead, LeadStatus
+from phoenix_crm.services.lead_access import LeadAccessService
 
 
 @dataclass(frozen=True, slots=True)
@@ -22,8 +24,9 @@ class LeadQualificationService:
     """Coordinate controlled CRM lead qualification without external modules."""
 
     @staticmethod
-    def start(lead: Lead) -> LeadQualificationResult:
+    def start(lead: Lead, *, context: RequestContext | None = None) -> LeadQualificationResult:
         """Start qualification for a new lead."""
+        LeadQualificationService._require_access(lead, context)
         lead.start_qualification()
         return LeadQualificationService._result(lead, qualified=False)
 
@@ -32,21 +35,24 @@ class LeadQualificationService:
         lead: Lead,
         *,
         rationale: str | None = None,
+        context: RequestContext | None = None,
     ) -> LeadQualificationResult:
         """Mark a lead as qualified after CRM qualification work is complete."""
+        LeadQualificationService._require_access(lead, context)
         if rationale is not None and not rationale.strip():
             raise ValueError("rationale cannot be empty")
         lead.qualify()
         cleaned_rationale = rationale.strip() if rationale is not None else None
-        return LeadQualificationService._result(
-            lead,
-            qualified=True,
-            rationale=cleaned_rationale,
-        )
+        return LeadQualificationService._result(lead, qualified=True, rationale=cleaned_rationale)
 
     @staticmethod
-    def mark_potential_customer(lead: Lead) -> LeadQualificationResult:
+    def mark_potential_customer(
+        lead: Lead,
+        *,
+        context: RequestContext | None = None,
+    ) -> LeadQualificationResult:
         """Advance a qualified lead to the potential-customer state."""
+        LeadQualificationService._require_access(lead, context)
         lead.mark_potential_customer()
         return LeadQualificationService._result(lead, qualified=True)
 
@@ -55,28 +61,26 @@ class LeadQualificationService:
         lead: Lead,
         *,
         rationale: str | None = None,
+        context: RequestContext | None = None,
     ) -> LeadQualificationResult:
         """Disqualify a lead while preserving the reason supplied by the caller."""
+        LeadQualificationService._require_access(lead, context)
         if rationale is not None and not rationale.strip():
             raise ValueError("rationale cannot be empty")
         lead.disqualify()
         cleaned_rationale = rationale.strip() if rationale is not None else None
-        return LeadQualificationService._result(
-            lead,
-            qualified=False,
-            rationale=cleaned_rationale,
-        )
+        return LeadQualificationService._result(lead, qualified=False, rationale=cleaned_rationale)
 
     @staticmethod
-    def _result(
-        lead: Lead,
-        *,
-        qualified: bool,
-        rationale: str | None = None,
-    ) -> LeadQualificationResult:
+    def _result(lead: Lead, *, qualified: bool, rationale: str | None = None) -> LeadQualificationResult:
         return LeadQualificationResult(
             lead_id=lead.id,
             status=lead.status,
             qualified=qualified,
             rationale=rationale,
         )
+
+    @staticmethod
+    def _require_access(lead: Lead, context: RequestContext | None) -> None:
+        if context is not None:
+            LeadAccessService.require_access(lead, context)
