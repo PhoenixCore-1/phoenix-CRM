@@ -70,6 +70,60 @@ def test_reporting_rejects_non_positive_activity_window():
         CRMReportingService.build(tenant_id=uuid4(), reference_at=datetime.now(timezone.utc), recent_activity_days=0)
 
 
+def test_reporting_related_records_require_visible_customer_scope():
+    tenant = uuid4()
+    visible = Customer(tenant, "Visible", uuid4(), uuid4())
+    hidden = Customer(tenant, "Hidden", uuid4(), uuid4())
+    now = datetime.now(timezone.utc)
+    visible_follow_up = CustomerFollowUp(tenant, visible.id, uuid4(), now, "Visible")
+    hidden_follow_up = CustomerFollowUp(tenant, hidden.id, uuid4(), now, "Hidden")
+    visible_activity = CustomerActivity(tenant, visible.id, ActivityType.CALL, "Visible", now)
+    hidden_activity = CustomerActivity(tenant, hidden.id, ActivityType.CALL, "Hidden", now)
+    result = CRMReportingService.build(
+        tenant_id=tenant,
+        reference_at=now,
+        customers=[visible, hidden],
+        follow_ups=[visible_follow_up, hidden_follow_up],
+        activities=[visible_activity, hidden_activity],
+        request_context=ctx(tenant, uuid4(), visible.id),
+    )
+    assert result.total_customers == 1
+    assert result.open_follow_ups == 1
+    assert result.recent_activities == 1
+
+
+def test_reporting_excludes_future_activities_from_snapshot():
+    tenant = uuid4()
+    customer = Customer(tenant, "Acme", uuid4(), uuid4())
+    reference_at = datetime(2026, 9, 5, 12, 0, tzinfo=timezone.utc)
+    future = CustomerActivity(tenant, customer.id, ActivityType.CALL, "Future", reference_at + timedelta(minutes=1))
+    result = CRMReportingService.build(
+        tenant_id=tenant,
+        reference_at=reference_at,
+        customers=[customer],
+        activities=[future],
+    )
+    assert result.recent_activities == 0
+
+
+def test_reporting_excludes_foreign_tenant_related_records():
+    tenant = uuid4()
+    other_tenant = uuid4()
+    customer = Customer(tenant, "Acme", uuid4(), uuid4())
+    now = datetime.now(timezone.utc)
+    foreign_follow_up = CustomerFollowUp(other_tenant, customer.id, uuid4(), now, "Foreign")
+    foreign_activity = CustomerActivity(other_tenant, customer.id, ActivityType.CALL, "Foreign", now)
+    result = CRMReportingService.build(
+        tenant_id=tenant,
+        reference_at=now,
+        customers=[customer],
+        follow_ups=[foreign_follow_up],
+        activities=[foreign_activity],
+    )
+    assert result.open_follow_ups == 0
+    assert result.recent_activities == 0
+
+
 def test_audit_event_is_immutable_and_copies_metadata():
     metadata = {"source": "test"}
     event = CRMAuditService.record(
