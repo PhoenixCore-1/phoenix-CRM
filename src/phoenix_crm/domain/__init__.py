@@ -3,7 +3,13 @@
 from .contact import Contact, ContactStatus
 from .customer import CallCadence, Customer, CustomerCallClass, CustomerStatus, CustomerType
 from .site import CustomerSite, CustomerSiteStatus
-from .site_party import ProjectSiteParty, SitePartyMatchStatus, SitePartyRole, SitePartySource
+from .site_party import (
+    ProjectSiteParty,
+    SitePartyMatchStatus,
+    SitePartyRole,
+    SitePartySource,
+    SitePartyStatus,
+)
 
 __all__ = [
     "CallCadence",
@@ -19,4 +25,5 @@ __all__ = [
     "SitePartyMatchStatus",
     "SitePartyRole",
     "SitePartySource",
+    "SitePartyStatus",
 ]
