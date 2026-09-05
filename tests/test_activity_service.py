@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import pytest
 
-from phoenix_crm.domain import Activity, ActivityType, Customer
+from phoenix_crm.domain import ActivityType, Customer, CustomerActivity
 from phoenix_crm.services.activity_service import ActivityService
 
 
@@ -18,13 +18,14 @@ def make_customer() -> Customer:
     )
 
 
-def make_activity(customer: Customer, *, occurred_at: datetime, contact_id=None) -> Activity:
-    return Activity(
+def make_activity(customer: Customer, *, occurred_at: datetime, contact_id=None) -> CustomerActivity:
+    return CustomerActivity(
         tenant_id=customer.tenant_id,
         customer_id=customer.id,
         activity_type=ActivityType.CALL,
+        subject="Relationship discussion",
         occurred_at=occurred_at,
-        performed_by_id=uuid4(),
+        performed_by_user_id=uuid4(),
         contact_id=contact_id,
         notes="Relationship discussion",
     )
