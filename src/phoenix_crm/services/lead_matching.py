@@ -34,7 +34,12 @@ class LeadMatchingService:
         lead: Lead,
         candidates: list[Lead] | tuple[Lead, ...],
     ) -> list[LeadMatch]:
-        """Return same-tenant duplicate candidates ordered by match strength."""
+        """Return same-tenant duplicate candidates ordered by match strength.
+
+        A name-only match is intentionally excluded. Name remains contextual
+        metadata when a stronger identifying signal is present, but it does not
+        contribute to the duplicate score.
+        """
         matches: list[LeadMatch] = []
         for candidate in candidates:
             if candidate.id == lead.id or candidate.tenant_id != lead.tenant_id:
@@ -43,12 +48,13 @@ class LeadMatchingService:
             scoring_fields = [field for field in fields if field != "name"]
             if not scoring_fields:
                 continue
+            ordered_fields = cls._order_fields(scoring_fields, fields)
             matches.append(
                 LeadMatch(
                     candidate.id,
                     "lead",
                     cls._score(scoring_fields),
-                    tuple(scoring_fields),
+                    tuple(ordered_fields),
                 )
             )
         return cls._ordered(matches)
@@ -101,6 +107,15 @@ class LeadMatchingService:
             fields.append("company_name")
 
         return fields
+
+    @classmethod
+    def _order_fields(cls, scoring_fields: list[str], all_fields: list[str]) -> list[str]:
+        """Keep score fields in canonical order, then add name as context when present."""
+        order = {"email": 0, "phone": 1, "mobile": 2, "company_name": 3}
+        result = sorted(scoring_fields, key=lambda field: order[field])
+        if "name" in all_fields:
+            result.append("name")
+        return result
 
     @classmethod
     def _customer_fields(cls, lead: Lead, customer: Customer) -> list[str]:
