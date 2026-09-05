@@ -10,7 +10,7 @@ from phoenix_crm.domain import Customer, Lead
 
 @dataclass(frozen=True, slots=True)
 class LeadMatch:
-    """A deterministic candidate match with the fields that caused it."""
+    """A deterministic candidate match with identity signals and context."""
 
     entity_id: UUID
     entity_type: str
@@ -34,27 +34,24 @@ class LeadMatchingService:
         lead: Lead,
         candidates: list[Lead] | tuple[Lead, ...],
     ) -> list[LeadMatch]:
-        """Return same-tenant duplicate candidates ordered by match strength.
+        """Return same-tenant duplicate candidates ordered by identity strength.
 
-        A name-only match is excluded because names are ambiguous. Name is kept
-        as contextual metadata when another identifying field matches, while
-        duplicate scoring follows the established field weights.
+        Name alone is never sufficient. Name is returned only as context when at
+        least one independent identifying field matches and does not affect score.
         """
         matches: list[LeadMatch] = []
         for candidate in candidates:
             if candidate.id == lead.id or candidate.tenant_id != lead.tenant_id:
                 continue
-            fields = cls._lead_fields(lead, candidate)
-            identifying_fields = [field for field in fields if field != "name"]
-            if not identifying_fields:
+            identity_fields, context_fields = cls._lead_match_fields(lead, candidate)
+            if not identity_fields:
                 continue
-            score_fields = fields
             matches.append(
                 LeadMatch(
-                    candidate.id,
-                    "lead",
-                    cls._score(score_fields),
-                    tuple(fields),
+                    entity_id=candidate.id,
+                    entity_type="lead",
+                    score=cls._score(identity_fields),
+                    matched_fields=tuple(identity_fields + context_fields),
                 )
             )
         return cls._ordered(matches)
@@ -76,29 +73,40 @@ class LeadMatchingService:
         return cls._ordered(matches)
 
     @classmethod
-    def _lead_fields(cls, lead: Lead, candidate: Lead) -> list[str]:
-        fields: list[str] = []
+    def _lead_match_fields(
+        cls,
+        lead: Lead,
+        candidate: Lead,
+    ) -> tuple[list[str], list[str]]:
+        identity: list[str] = []
+        context: list[str] = []
+
         lead_email = cls.normalize(lead.email)
         candidate_email = cls.normalize(candidate.email)
         if lead_email and candidate_email and lead_email == candidate_email:
-            fields.append("email")
+            identity.append("email")
+
         lead_phone = cls._phone(lead.phone)
         candidate_phone = cls._phone(candidate.phone)
         if lead_phone and candidate_phone and lead_phone == candidate_phone:
-            fields.append("phone")
+            identity.append("phone")
+
         lead_mobile = cls._phone(lead.mobile)
         candidate_mobile = cls._phone(candidate.mobile)
         if lead_mobile and candidate_mobile and lead_mobile == candidate_mobile:
-            fields.append("mobile")
-        lead_name = cls.normalize(lead.name)
-        candidate_name = cls.normalize(candidate.name)
-        if lead_name and candidate_name and lead_name == candidate_name:
-            fields.append("name")
+            identity.append("mobile")
+
         lead_company = cls.normalize(lead.company_name)
         candidate_company = cls.normalize(candidate.company_name)
         if lead_company and candidate_company and lead_company == candidate_company:
-            fields.append("company_name")
-        return fields
+            identity.append("company_name")
+
+        lead_name = cls.normalize(lead.name)
+        candidate_name = cls.normalize(candidate.name)
+        if lead_name and candidate_name and lead_name == candidate_name:
+            context.append("name")
+
+        return identity, context
 
     @classmethod
     def _customer_fields(cls, lead: Lead, customer: Customer) -> list[str]:
@@ -107,10 +115,6 @@ class LeadMatchingService:
         customer_name = cls.normalize(customer.name)
         if lead_company and customer_name and lead_company == customer_name:
             fields.append("company_name")
-        else:
-            lead_name = cls.normalize(lead.name)
-            if lead_name and customer_name and lead_name == customer_name:
-                fields.append("name")
         return fields
 
     @staticmethod
@@ -121,7 +125,7 @@ class LeadMatchingService:
 
     @staticmethod
     def _score(fields: list[str]) -> int:
-        weights = {"email": 100, "phone": 90, "mobile": 90, "company_name": 60, "name": 50}
+        weights = {"email": 100, "phone": 90, "mobile": 90, "company_name": 60}
         return sum(weights[field] for field in fields)
 
     @staticmethod
