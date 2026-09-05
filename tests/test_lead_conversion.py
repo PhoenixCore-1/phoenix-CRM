@@ -67,7 +67,7 @@ def test_conversion_blocks_existing_customer_match_by_default():
     assert lead.status is LeadStatus.POTENTIAL_CUSTOMER
 
 
-def test_conversion_can_proceed_when_duplicate_check_is_overridden():
+def test_conversion_can_proceed_with_explicit_duplicate_review_override():
     lead = potential_lead()
     existing = make_customer(lead.tenant_id, "Acme Trading")
     customer, result = LeadConversionService.convert(
@@ -75,7 +75,7 @@ def test_conversion_can_proceed_when_duplicate_check_is_overridden():
         [existing],
         customer_type_id=uuid4(),
         call_class_id=uuid4(),
-        require_no_matches=False,
+        duplicate_override_approved=True,
     )
     assert result.converted is True
     assert result.customer_id == customer.id
@@ -129,3 +129,27 @@ def test_evaluate_is_tenant_safe():
     foreign = make_customer(uuid4(), "Acme Trading")
     result = LeadConversionService.evaluate(lead, [foreign])
     assert result.existing_customer_matches == ()
+
+
+def test_converted_lead_cannot_be_converted_again():
+    lead = potential_lead()
+    LeadConversionService.convert(
+        lead, [], customer_type_id=uuid4(), call_class_id=uuid4()
+    )
+    assert lead.status is LeadStatus.CONVERTED
+    with pytest.raises(ValueError, match="potential customer"):
+        LeadConversionService.convert(
+            lead, [], customer_type_id=uuid4(), call_class_id=uuid4()
+        )
+
+
+def test_duplicate_block_does_not_change_lead():
+    lead = potential_lead()
+    before_updated_at = lead.updated_at
+    customer = make_customer(lead.tenant_id, "Acme Trading")
+    with pytest.raises(ValueError, match="Potential duplicate"):
+        LeadConversionService.convert(
+            lead, [customer], customer_type_id=uuid4(), call_class_id=uuid4()
+        )
+    assert lead.status is LeadStatus.POTENTIAL_CUSTOMER
+    assert lead.updated_at == before_updated_at
