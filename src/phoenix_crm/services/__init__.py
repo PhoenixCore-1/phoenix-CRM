@@ -7,6 +7,7 @@ from .call_cadence import CadenceResult, CallCadenceService
 from .call_plan_timing import CallPlanTiming, CallPlanTimingService, TimedCallPlanItem
 from .call_planning import CallPlanItem, CallPlanItemType, CallPlanningService
 from .follow_up_service import FollowUpService
+from .lead_conversion import CustomerConversionResult, LeadConversionService
 from .lead_qualification import LeadQualificationResult, LeadQualificationService
 from .lead_matching import LeadMatch, LeadMatchingService
 
@@ -25,7 +26,9 @@ __all__ = [
     "CallPlanTimingService",
     "CRMIntelligenceService",
     "CRMIntelligenceType",
+    "CustomerConversionResult",
     "FollowUpService",
+    "LeadConversionService",
     "LeadMatch",
     "LeadMatchingService",
     "LeadQualificationResult",
