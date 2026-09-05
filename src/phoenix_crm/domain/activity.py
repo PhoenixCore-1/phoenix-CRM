@@ -47,13 +47,14 @@ class ActivitySource(str, Enum):
 
 @dataclass(slots=True)
 class CustomerActivity:
-    """Tenant-scoped historical interaction with a CRM customer."""
+    """Tenant-scoped relationship interaction for a customer or lead."""
     tenant_id: UUID
-    customer_id: UUID
+    customer_id: UUID | None
     activity_type: ActivityType
     subject: str
     occurred_at: datetime
     id: UUID = field(default_factory=uuid4)
+    lead_id: UUID | None = None
     contact_id: UUID | None = None
     site_id: UUID | None = None
     site_party_id: UUID | None = None
@@ -73,6 +74,8 @@ class CustomerActivity:
     def __post_init__(self) -> None:
         if not self.subject.strip():
             raise ValueError("Activity subject cannot be empty")
+        if self.customer_id is None and self.lead_id is None:
+            raise ValueError("Activity must reference a customer or lead")
         self.subject = self.subject.strip()
         if self.notes is not None:
             self.notes = self.notes.strip() or None
