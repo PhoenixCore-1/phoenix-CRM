@@ -56,8 +56,11 @@ class CustomerDashboardCompositionService:
         """Build a complete, tenant/access-scoped dashboard projection."""
         if kpis.tenant_id != tenant_id:
             raise ValueError("Dashboard KPIs do not match tenant")
-        if request_context is not None and request_context.user.user_id != str(user_id):
-            raise PermissionError("Core request user does not match dashboard user")
+        if request_context is not None:
+            if request_context.tenant.tenant_id != str(tenant_id):
+                raise PermissionError("Core request tenant does not match dashboard tenant")
+            if request_context.user.user_id != str(user_id):
+                raise PermissionError("Core request user does not match dashboard user")
 
         foundation = CustomerDashboardFoundationService.build(
             tenant_id=tenant_id,
