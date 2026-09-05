@@ -84,6 +84,7 @@ class Customer:
     def __post_init__(self) -> None:
         if not self.name.strip():
             raise ValueError("Customer name cannot be empty")
+        self.name = self.name.strip()
 
     def rename(self, name: str) -> None:
         """Rename the customer and update its modification timestamp."""
