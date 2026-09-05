@@ -14,6 +14,7 @@ from .lead_conversion import CustomerConversionResult, LeadConversionService
 from .lead_qualification import LeadQualificationResult, LeadQualificationService
 from .lead_matching import LeadMatch, LeadMatchingService
 from .potential_qualification import PotentialQualificationResult, PotentialQualificationService
+from .potential_service import CustomerPotentialService
 
 __all__ = [
     "ActivityIntegrityService",
@@ -31,6 +32,7 @@ __all__ = [
     "CRMIntelligenceService",
     "CRMIntelligenceType",
     "CustomerConversionResult",
+    "CustomerPotentialService",
     "FollowUpService",
     "LeadAccessService",
     "LeadActivityContext",
