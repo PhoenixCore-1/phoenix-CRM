@@ -46,7 +46,7 @@ def test_multiple_matching_fields_accumulate_score():
 def test_phone_formatting_is_normalized():
     tenant = uuid4()
     lead = make_lead(tenant, phone="+27 (12) 345-6789")
-    candidate = make_lead(tenant, phone="27123456789")
+    candidate = make_lead(tenant, name="Different Name", phone="27123456789")
     assert LeadMatchingService.lead_duplicates(lead, [candidate])[0].matched_fields == ("phone",)
 
 
@@ -64,7 +64,7 @@ def test_same_lead_is_excluded():
 def test_duplicate_results_are_deterministically_ordered_by_score_then_id():
     tenant = uuid4()
     lead = make_lead(tenant, email="same@example.com", name="Acme")
-    weak = make_lead(tenant, name="Acme")
+    weak = make_lead(tenant, name="Acme", email="different@example.com")
     strong = make_lead(tenant, name="Acme", email="same@example.com")
     result = LeadMatchingService.lead_duplicates(lead, [weak, strong])
     assert [match.entity_id for match in result] == [strong.id, weak.id]
