@@ -5,7 +5,7 @@ from uuid import uuid4
 import pytest
 
 from phoenix_crm.domain import PurchaseHistoryContract, PurchaseHistoryRecord
-from phoenix_crm.services import Customer360PurchaseSectionService, PurchaseHistoryBoundary
+from phoenix_crm.services import Customer360PurchaseSectionService
 
 
 class Provider:
@@ -16,7 +16,7 @@ class Provider:
         return self.contract
 
 
-def record(tenant_id, customer_id, reference, day, solution="Anchor"):
+def record(tenant_id, customer_id, reference, day, solution="Anchor", source_system="sales"):
     return PurchaseHistoryRecord(
         tenant_id=tenant_id,
         customer_id=customer_id,
@@ -24,7 +24,7 @@ def record(tenant_id, customer_id, reference, day, solution="Anchor"):
         transaction_at=datetime(2026, 1, day, tzinfo=timezone.utc),
         solution_name=solution,
         quantity=Decimal("2"),
-        source_system="sales",
+        source_system=source_system,
     )
 
 
@@ -99,7 +99,7 @@ def test_purchase_section_preserves_source_system():
     contract = PurchaseHistoryContract(
         tenant_id=tenant_id,
         customer_id=customer_id,
-        records=(record(tenant_id, customer_id, "A", 1),),
+        records=(record(tenant_id, customer_id, "A", 1, source_system="erp"),),
         source_system="erp",
     )
     section = Customer360PurchaseSectionService.build(
