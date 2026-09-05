@@ -13,6 +13,7 @@ from .follow_up import CustomerFollowUp, FollowUpPriority, FollowUpStatus
 from .lead import Lead, LeadSource, LeadStatus
 from .potential import CustomerPotential, PotentialPriority, PotentialSource, PotentialStatus
 from .potential_solution import CustomerSolution, SolutionRelationship, SolutionStatus
+from .purchase_history import PurchaseHistoryContract, PurchaseHistoryRecord, PurchaseRecordStatus
 from .site import CustomerSite, CustomerSiteStatus
 from .site_party import (
     ProjectSiteParty,
@@ -48,6 +49,9 @@ __all__ = [
     "PotentialSource",
     "PotentialStatus",
     "ProjectSiteParty",
+    "PurchaseHistoryContract",
+    "PurchaseHistoryRecord",
+    "PurchaseRecordStatus",
     "SitePartyMatchStatus",
     "SitePartyRole",
     "SitePartySource",
