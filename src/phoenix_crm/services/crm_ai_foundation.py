@@ -44,7 +44,7 @@ class CRMAIRequest:
 
 
 @dataclass(frozen=True, slots=True)
-class CRM AIResult:
+class CRMAIResult:
     """Result envelope returned by the Core AI capability boundary."""
 
     availability: AIAvailability
@@ -60,12 +60,12 @@ class CRM AIResult:
 class CoreAICapability(Protocol):
     """Published Core capability consumed by CRM without provider knowledge."""
 
-    def evaluate(self, request: CRM AIRequest) -> CRM AIResult:
+    def evaluate(self, request: CRMAIRequest) -> CRMAIResult:
         """Evaluate a CRM AI request through the Core-governed AI boundary."""
         ...
 
 
-class CRM AIService:
+class CRMAIService:
     """Enforce CRM/Core AI boundaries before invoking an optional provider."""
 
     @staticmethod
@@ -76,14 +76,14 @@ class CRM AIService:
         intelligence_type: CRMIntelligenceType,
         values: Mapping[str, object],
         request_context: RequestContext | None = None,
-    ) -> CRM AIContext:
+    ) -> CRMAIContext:
         """Build immutable AI context and enforce Core tenant scope."""
         if request_context is not None:
             if request_context.tenant.tenant_id != str(tenant_id):
                 raise PermissionError("Core AI request tenant does not match CRM tenant")
             if not request_context.can_access_resource(str(customer_id)):
                 raise PermissionError("Core AI request is outside customer access scope")
-        return CRM AIContext(
+        return CRMAIContext(
             tenant_id=tenant_id,
             customer_id=customer_id,
             intelligence_type=intelligence_type,
@@ -95,10 +95,10 @@ class CRM AIService:
         *,
         tenant_id: UUID,
         user_id: UUID,
-        context: CRM AIContext,
+        context: CRMAIContext,
         capability: CoreAICapability | None = None,
         request_context: RequestContext | None = None,
-    ) -> CRM AIResult:
+    ) -> CRMAIResult:
         """Evaluate through Core when available; otherwise degrade gracefully."""
         if context.tenant_id != tenant_id:
             raise ValueError("CRM AI context does not match tenant")
@@ -110,9 +110,9 @@ class CRM AIService:
             if not request_context.can_access_resource(str(context.customer_id)):
                 raise PermissionError("Core AI request is outside customer access scope")
         if capability is None:
-            return CRM AIResult(AIAvailability.UNAVAILABLE)
+            return CRMAIResult(AIAvailability.UNAVAILABLE)
         return capability.evaluate(
-            CRM AIRequest(
+            CRMAIRequest(
                 tenant_id=tenant_id,
                 user_id=user_id,
                 context=context,
