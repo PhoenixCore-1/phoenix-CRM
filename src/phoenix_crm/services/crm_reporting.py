@@ -54,12 +54,21 @@ class CRMReportingService:
         customer_ids = {item.id for item in scoped_customers}
         scoped_follow_ups = tuple(
             item for item in follow_ups
-            if item.tenant_id == tenant_id and item.customer_id in customer_ids
+            if item.tenant_id == tenant_id
+            and item.customer_id in customer_ids
+            and (
+                request_context is None
+                or request_context.can_access_resource(str(item.customer_id))
+            )
         )
         scoped_activities = tuple(
             item for item in activities
             if item.tenant_id == tenant_id
             and item.customer_id in customer_ids
+            and (
+                request_context is None
+                or request_context.can_access_resource(str(item.customer_id))
+            )
             and item.occurred_at <= reference_at
         )
         open_follow_ups = tuple(
