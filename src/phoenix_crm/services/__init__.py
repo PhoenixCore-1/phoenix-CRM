@@ -15,6 +15,7 @@ from .lead_qualification import LeadQualificationResult, LeadQualificationServic
 from .lead_matching import LeadMatch, LeadMatchingService
 from .potential_qualification import PotentialQualificationResult, PotentialQualificationService
 from .potential_service import CustomerPotentialService
+from .purchase_history_service import PurchaseHistoryProvider, PurchaseHistoryService
 
 __all__ = [
     "ActivityIntegrityService",
@@ -48,5 +49,7 @@ __all__ = [
     "LeadQualificationService",
     "PotentialQualificationResult",
     "PotentialQualificationService",
+    "PurchaseHistoryProvider",
+    "PurchaseHistoryService",
     "TimedCallPlanItem",
 ]
