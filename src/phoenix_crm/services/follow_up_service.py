@@ -86,8 +86,9 @@ class FollowUpService:
     ) -> bool:
         """Return whether Core has granted access to the follow-up's customer."""
         FollowUpService._validate_customer(follow_up, customer)
-        return context.tenant.tenant_id == str(customer.tenant_id) and context.can_access_resource(
-            str(customer.id)
+        return (
+            context.tenant.tenant_id == str(customer.tenant_id)
+            and context.can_access_resource(str(customer.id))
         )
 
     @staticmethod
@@ -97,7 +98,6 @@ class FollowUpService:
         context: RequestContext,
     ) -> None:
         """Raise PermissionError when Core scope does not include the customer."""
-        FollowUpService._validate_customer(follow_up, customer)
         if not FollowUpService.can_access(follow_up, customer, context):
             raise PermissionError("Core access scope does not include this customer")
 
@@ -112,13 +112,13 @@ class FollowUpService:
         """Return a customer's follow-ups, optionally constrained by Core scope."""
         items = [follow_up for follow_up in follow_ups if follow_up.customer_id == customer_id]
         if tenant_id is not None:
-            items = [follow_up for follow_up in items if follow_up.tenant_id == tenant_id]
+            items = [item for item in items if item.tenant_id == tenant_id]
         if context is not None:
-            if context.tenant.tenant_id != str(tenant_id) if tenant_id is not None else False:
+            if context.tenant.tenant_id != str(context.tenant.tenant_id):
                 return ()
             if not context.can_access_resource(str(customer_id)):
                 return ()
-            items = [item for item in items if item.tenant_id == UUID(context.tenant.tenant_id)]
+            items = [item for item in items if str(item.tenant_id) == context.tenant.tenant_id]
         items.sort(key=lambda item: (item.due_at, str(item.id)), reverse=True)
         return tuple(items)
 
@@ -141,7 +141,7 @@ class FollowUpService:
             items = [
                 item
                 for item in items
-                if item.tenant_id == UUID(context.tenant.tenant_id)
+                if str(item.tenant_id) == context.tenant.tenant_id
                 and context.can_access_resource(str(item.customer_id))
             ]
         items.sort(key=lambda item: (item.due_at, str(item.id)))
