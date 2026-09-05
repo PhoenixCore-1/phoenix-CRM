@@ -21,6 +21,7 @@ from .customer_360_kpis import CustomerDashboardKPIService, CustomerDashboardKPI
 from .customer_call_follow_up_queue import CustomerCallFollowUpQueueService, CRMWorkItemType, CRMWorkQueueItem
 from .customer_dashboard_composition import CustomerDashboardComposition, CustomerDashboardCompositionService
 from .crm_ai_foundation import AIAvailability, CRMAIContext, CRMAIRequest, CRMAIResult, CRMAIService, CoreAICapability
+from .crm_ai_catalog import CRMAICapabilityCatalog, CRMAICapabilityDescriptor
 from .customer_summary_ai import CustomerSummaryAIService
 from .call_preparation_ai import CallPreparationAIService, CallPreparationContext
 from .next_best_action_ai import NextBestActionAIService, NextBestActionContext
@@ -43,7 +44,7 @@ from .purchase_summary import PurchaseHistorySummary, PurchaseSummaryService
 
 __all__ = [
     "ActivityIntegrityService", "ActivityTimelineEntry", "ActivityTimelineService", "ActivityValidationResult", "AIProposal",
-    "AIAvailability", "CRMAIContext", "CRMAIRequest", "CRMAIResult", "CRMAIService", "CoreAICapability", "CustomerSummaryAIService",
+    "AIAvailability", "CRMAIContext", "CRMAIRequest", "CRMAIResult", "CRMAIService", "CoreAICapability", "CRMAICapabilityCatalog", "CRMAICapabilityDescriptor", "CustomerSummaryAIService",
     "CallPreparationAIService", "CallPreparationContext", "NextBestActionAIService", "NextBestActionContext", "RelationshipRiskAIService", "RelationshipRiskContext", "ActivitySummarisationAIService", "ActivitySummarisationContext", "LeadQualificationAIService", "LeadQualificationAIContext", "PotentialDetectionAIService", "PotentialDetectionContext",
     "CadenceResult", "CallCadenceService", "CallPlanItem", "CallPlanItemType", "CallPlanningService", "CallPlanTiming", "CallPlanTimingService",
     "CRMIntelligenceService", "CRMIntelligenceType", "CRMWorkItemType", "CRMWorkQueueItem", "Customer360Composition", "Customer360CompositionService", "Customer360ContactItem", "Customer360ContactsSitesSection", "Customer360ContactsSitesService",
