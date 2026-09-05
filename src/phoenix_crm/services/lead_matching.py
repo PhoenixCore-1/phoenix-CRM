@@ -39,7 +39,12 @@ class LeadMatchingService:
         lead: Lead,
         candidates: list[Lead] | tuple[Lead, ...],
     ) -> list[LeadMatch]:
-        """Return same-tenant lead candidates ordered by strongest match."""
+        """Return same-tenant lead candidates ordered by strongest match.
+
+        A name-only match is intentionally not considered a duplicate because
+        names are too ambiguous to prevent false positives. At least one
+        identifying contact/company signal must be present.
+        """
         matches: list[LeadMatch] = []
         for candidate in candidates:
             if candidate.id == lead.id or candidate.tenant_id != lead.tenant_id:
@@ -47,9 +52,7 @@ class LeadMatchingService:
             fields = cls._lead_fields(lead, candidate)
             if not fields or fields == ["name"]:
                 continue
-            matches.append(
-                LeadMatch(candidate.id, "lead", cls._score(fields), tuple(fields))
-            )
+            matches.append(LeadMatch(candidate.id, "lead", cls._score(fields), tuple(fields)))
         return cls._ordered(matches)
 
     @classmethod
@@ -65,9 +68,7 @@ class LeadMatchingService:
                 continue
             fields = cls._customer_fields(lead, customer)
             if fields:
-                matches.append(
-                    LeadMatch(customer.id, "customer", cls._score(fields), tuple(fields))
-                )
+                matches.append(LeadMatch(customer.id, "customer", cls._score(fields), tuple(fields)))
         return cls._ordered(matches)
 
     @classmethod
