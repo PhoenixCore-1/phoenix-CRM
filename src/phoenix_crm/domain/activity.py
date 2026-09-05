@@ -41,6 +41,8 @@ class CustomerActivity:
     occurred_at: datetime
     id: UUID = field(default_factory=uuid4)
     contact_id: UUID | None = None
+    site_id: UUID | None = None
+    site_party_id: UUID | None = None
     performed_by_user_id: UUID | None = None
     outcome: ActivityOutcome | None = None
     notes: str | None = None
@@ -70,4 +72,17 @@ class CustomerActivity:
             self.outcome = outcome
         if notes is not None:
             self.notes = notes.strip() or None
+        self.updated_at = datetime.now(timezone.utc)
+
+    def set_relationship_context(
+        self,
+        *,
+        contact_id: UUID | None = None,
+        site_id: UUID | None = None,
+        site_party_id: UUID | None = None,
+    ) -> None:
+        """Set optional CRM relationship context for the activity."""
+        self.contact_id = contact_id
+        self.site_id = site_id
+        self.site_party_id = site_party_id
         self.updated_at = datetime.now(timezone.utc)
