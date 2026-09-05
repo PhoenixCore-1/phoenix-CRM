@@ -13,6 +13,7 @@ from .lead_ai import LeadAIContext, LeadAIProposal, LeadAIService, LeadIntellige
 from .lead_conversion import CustomerConversionResult, LeadConversionService
 from .lead_qualification import LeadQualificationResult, LeadQualificationService
 from .lead_matching import LeadMatch, LeadMatchingService
+from .potential_qualification import PotentialQualificationResult, PotentialQualificationService
 
 __all__ = [
     "ActivityIntegrityService",
@@ -43,5 +44,7 @@ __all__ = [
     "LeadMatchingService",
     "LeadQualificationResult",
     "LeadQualificationService",
+    "PotentialQualificationResult",
+    "PotentialQualificationService",
     "TimedCallPlanItem",
 ]
