@@ -8,6 +8,7 @@ from .call_plan_timing import CallPlanTiming, CallPlanTimingService, TimedCallPl
 from .call_planning import CallPlanItem, CallPlanItemType, CallPlanningService
 from .follow_up_service import FollowUpService
 from .lead_qualification import LeadQualificationResult, LeadQualificationService
+from .lead_matching import LeadMatch, LeadMatchingService
 
 __all__ = [
     "ActivityIntegrityService",
@@ -25,6 +26,8 @@ __all__ = [
     "CRMIntelligenceService",
     "CRMIntelligenceType",
     "FollowUpService",
+    "LeadMatch",
+    "LeadMatchingService",
     "LeadQualificationResult",
     "LeadQualificationService",
     "TimedCallPlanItem",
