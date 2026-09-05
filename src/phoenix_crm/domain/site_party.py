@@ -41,6 +41,14 @@ class SitePartySource(str, Enum):
     OTHER = "other"
 
 
+class SitePartyStatus(str, Enum):
+    """Lifecycle status of a CRM project-site party relationship."""
+
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    REMOVED = "removed"
+
+
 @dataclass(slots=True)
 class ProjectSiteParty:
     """CRM relationship record for a party discovered on a project site.
@@ -59,6 +67,7 @@ class ProjectSiteParty:
     id: UUID = field(default_factory=uuid4)
     customer_id: UUID | None = None
     match_status: SitePartyMatchStatus = SitePartyMatchStatus.UNMATCHED
+    status: SitePartyStatus = SitePartyStatus.ACTIVE
     notes: str | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
@@ -76,12 +85,14 @@ class ProjectSiteParty:
         """Link the discovered party to an existing CRM customer."""
         self.customer_id = customer_id
         self.match_status = SitePartyMatchStatus.MATCHED_CUSTOMER
+        self.status = SitePartyStatus.ACTIVE
         self.updated_at = datetime.now(timezone.utc)
 
     def mark_potential_lead(self) -> None:
         """Mark the party as requiring CRM lead qualification."""
         self.customer_id = None
         self.match_status = SitePartyMatchStatus.POTENTIAL_LEAD
+        self.status = SitePartyStatus.ACTIVE
         self.updated_at = datetime.now(timezone.utc)
 
     def clear_match(self) -> None:
@@ -93,4 +104,19 @@ class ProjectSiteParty:
     def update_notes(self, notes: str | None) -> None:
         """Update relationship notes."""
         self.notes = notes.strip() if notes is not None and notes.strip() else None
+        self.updated_at = datetime.now(timezone.utc)
+
+    def deactivate(self) -> None:
+        """Mark the relationship inactive without deleting its history."""
+        self.status = SitePartyStatus.INACTIVE
+        self.updated_at = datetime.now(timezone.utc)
+
+    def reactivate(self) -> None:
+        """Restore an inactive relationship to active status."""
+        self.status = SitePartyStatus.ACTIVE
+        self.updated_at = datetime.now(timezone.utc)
+
+    def remove(self) -> None:
+        """Mark the relationship removed while preserving its record."""
+        self.status = SitePartyStatus.REMOVED
         self.updated_at = datetime.now(timezone.utc)
