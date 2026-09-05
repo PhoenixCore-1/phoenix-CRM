@@ -107,11 +107,18 @@ class CustomerCallFollowUpQueueService:
                 )
             )
 
+        # Calls are the primary relationship-planning item; follow-ups are the
+        # secondary action queue. Keep that precedence deterministic, then sort
+        # by due time within each item type.
+        item_type_order = {
+            CRMWorkItemType.CALL: 0,
+            CRMWorkItemType.FOLLOW_UP: 1,
+        }
         items.sort(
             key=lambda item: (
+                item_type_order[item.item_type],
                 item.due_at,
                 str(item.customer_id),
-                item.item_type.value,
                 str(item.follow_up_id or ""),
             )
         )
