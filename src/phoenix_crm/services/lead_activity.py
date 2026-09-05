@@ -8,6 +8,7 @@ from uuid import UUID
 
 from phoenix_crm.api import RequestContext
 from phoenix_crm.domain import CustomerActivity, Lead
+from phoenix_crm.services.activity_validation import ActivityIntegrityService
 from phoenix_crm.services.lead_access import LeadAccessService
 
 
@@ -30,12 +31,9 @@ class LeadActivityService:
         *,
         context: RequestContext | None = None,
     ) -> CustomerActivity:
-        """Validate that an activity explicitly references the supplied lead."""
+        """Validate and return an activity explicitly linked to the supplied lead."""
         LeadActivityService._require_access(lead, context)
-        if activity.tenant_id != lead.tenant_id:
-            raise ValueError("Activity and lead must belong to the same tenant")
-        if activity.lead_id != lead.id:
-            raise ValueError("Activity lead reference does not match the supplied lead")
+        ActivityIntegrityService.require_valid_lead(activity, lead)
         return activity
 
     @staticmethod
@@ -80,12 +78,12 @@ class LeadActivityService:
         LeadActivityService._require_access(lead, context)
         if activity.tenant_id != lead.tenant_id:
             raise ValueError("Activity and lead must belong to the same tenant")
-        if activity.customer_id is not None:
-            activity.customer_id = None
+        activity.customer_id = None
         activity.lead_id = lead.id
         metadata = dict(activity.metadata)
         metadata["lead_id"] = str(lead.id)
         activity.set_communication_context(metadata=metadata)
+        ActivityIntegrityService.require_valid_lead(activity, lead)
 
     @staticmethod
     def _require_access(lead: Lead, context: RequestContext | None) -> None:
