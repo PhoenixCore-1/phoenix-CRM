@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import pytest
 
-from phoenix_crm.api import RequestContext
+from phoenix_crm.api import AccessScopeContext, RequestContext, TenantContext, UserContext
 from phoenix_crm.services import (
     AIAvailability,
     AIProposal,
@@ -14,6 +14,14 @@ from phoenix_crm.services import (
     CRMIntelligenceType,
     CRMAIResult,
 )
+
+
+def make_request_context(tenant_id, user_id, resource_ids):
+    return RequestContext(
+        tenant=TenantContext(tenant_id=tenant_id),
+        user=UserContext(user_id=user_id),
+        access_scope=AccessScopeContext(resource_ids=frozenset(resource_ids)),
+    )
 
 
 def test_context_is_immutable_and_copies_values() -> None:
@@ -38,10 +46,8 @@ def test_context_is_immutable_and_copies_values() -> None:
 def test_build_context_enforces_core_tenant_and_customer_scope() -> None:
     tenant_id = uuid4()
     customer_id = uuid4()
-    request_context = RequestContext.for_test(
-        tenant_id=str(tenant_id),
-        user_id=str(uuid4()),
-        resource_ids={str(customer_id)},
+    request_context = make_request_context(
+        str(tenant_id), str(uuid4()), {str(customer_id)}
     )
 
     context = CallPreparationAIService.build_context(
@@ -137,10 +143,8 @@ def test_evaluate_enforces_tenant_user_and_resource_scope() -> None:
     user_id = uuid4()
     customer_id = uuid4()
     context = CallPreparationContext(tenant_id=tenant_id, customer_id=customer_id, values={})
-    request_context = RequestContext.for_test(
-        tenant_id=str(tenant_id),
-        user_id=str(user_id),
-        resource_ids={str(customer_id)},
+    request_context = make_request_context(
+        str(tenant_id), str(user_id), {str(customer_id)}
     )
 
     with pytest.raises(ValueError):
