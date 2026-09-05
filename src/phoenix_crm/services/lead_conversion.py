@@ -5,7 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from uuid import UUID
 
+from phoenix_crm.api import RequestContext
 from phoenix_crm.domain import Customer, CustomerStatus, Lead, LeadStatus
+from phoenix_crm.services.lead_access import LeadAccessService
 from phoenix_crm.services.lead_matching import LeadMatch, LeadMatchingService
 
 
@@ -26,8 +28,11 @@ class LeadConversionService:
     def evaluate(
         lead: Lead,
         customers: list[Customer] | tuple[Customer, ...],
+        *,
+        context: RequestContext | None = None,
     ) -> CustomerConversionResult:
         """Evaluate conversion readiness without changing the lead."""
+        LeadConversionService._require_access(lead, context)
         matches = tuple(LeadMatchingService.customer_matches(lead, customers))
         return CustomerConversionResult(
             lead_id=lead.id,
@@ -46,6 +51,7 @@ class LeadConversionService:
         duplicate_override_approved: bool = False,
         account_owner_id: UUID | None = None,
         access_scope_id: UUID | None = None,
+        context: RequestContext | None = None,
     ) -> tuple[Customer, CustomerConversionResult]:
         """Convert a potential-customer lead into a new CRM customer.
 
@@ -53,7 +59,9 @@ class LeadConversionService:
         POTENTIAL_CUSTOMER state. Existing customer matches block conversion
         unless an explicit duplicate-review override has been approved by the
         calling workflow. This service never merges or links existing records.
+        Core remains the authorization authority when a request context is supplied.
         """
+        LeadConversionService._require_access(lead, context)
         if lead.status is not LeadStatus.POTENTIAL_CUSTOMER:
             raise ValueError("Only potential customer leads can be converted")
 
@@ -81,3 +89,8 @@ class LeadConversionService:
             customer_id=customer.id,
             existing_customer_matches=matches,
         )
+
+    @staticmethod
+    def _require_access(lead: Lead, context: RequestContext | None) -> None:
+        if context is not None:
+            LeadAccessService.require_access(lead, context)
