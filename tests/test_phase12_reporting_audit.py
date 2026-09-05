@@ -10,11 +10,12 @@ from phoenix_crm.domain import ActivityType, Customer, CustomerActivity, Custome
 from phoenix_crm.services import CRMAuditService, CRMReportingService, LeadActivityService
 
 
-def ctx(tenant_id, user_id, *resource_ids):
+def ctx(tenant_id, user_id, *resource_ids, correlation_id=""):
     return RequestContext(
         tenant=TenantContext(str(tenant_id)),
         user=UserContext(str(user_id)),
         access_scope=AccessScopeContext(resource_ids=frozenset(str(item) for item in resource_ids)),
+        correlation_id=correlation_id,
     )
 
 
@@ -98,6 +99,71 @@ def test_audit_preserves_correlation_and_actor():
     assert event.actor_user_id == user
     assert event.resource_id == resource
     assert event.correlation_id == "corr-1"
+
+
+def test_audit_context_rejects_tenant_mismatch():
+    tenant = uuid4()
+    with pytest.raises(PermissionError, match="tenant"):
+        CRMAuditService.record(
+            tenant_id=tenant,
+            actor_user_id=None,
+            action="customer.viewed",
+            resource_type="customer",
+            request_context=ctx(uuid4(), uuid4()),
+        )
+
+
+def test_audit_context_rejects_actor_mismatch():
+    tenant = uuid4()
+    with pytest.raises(PermissionError, match="actor"):
+        CRMAuditService.record(
+            tenant_id=tenant,
+            actor_user_id=uuid4(),
+            action="customer.viewed",
+            resource_type="customer",
+            request_context=ctx(tenant, uuid4()),
+        )
+
+
+def test_audit_context_rejects_resource_outside_scope():
+    tenant = uuid4()
+    with pytest.raises(PermissionError, match="access scope"):
+        CRMAuditService.record(
+            tenant_id=tenant,
+            actor_user_id=None,
+            action="customer.viewed",
+            resource_type="customer",
+            resource_id=uuid4(),
+            request_context=ctx(tenant, uuid4()),
+        )
+
+
+def test_audit_context_uses_request_correlation_id():
+    tenant = uuid4()
+    user = uuid4()
+    event = CRMAuditService.record(
+        tenant_id=tenant,
+        actor_user_id=user,
+        action="customer.viewed",
+        resource_type="customer",
+        correlation_id="",
+        request_context=ctx(tenant, user, correlation_id="corr-ctx"),
+    )
+    assert event.correlation_id == "corr-ctx"
+
+
+def test_audit_context_rejects_correlation_mismatch():
+    tenant = uuid4()
+    user = uuid4()
+    with pytest.raises(ValueError, match="correlation_id"):
+        CRMAuditService.record(
+            tenant_id=tenant,
+            actor_user_id=user,
+            action="customer.viewed",
+            resource_type="customer",
+            correlation_id="corr-other",
+            request_context=ctx(tenant, user, correlation_id="corr-ctx"),
+        )
 
 
 def test_closed_customer_is_not_counted_as_active():
