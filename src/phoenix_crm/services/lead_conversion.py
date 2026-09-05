@@ -43,21 +43,22 @@ class LeadConversionService:
         *,
         customer_type_id: UUID,
         call_class_id: UUID,
-        require_no_matches: bool = True,
+        duplicate_override_approved: bool = False,
         account_owner_id: UUID | None = None,
         access_scope_id: UUID | None = None,
     ) -> tuple[Customer, CustomerConversionResult]:
-        """Convert a potential customer lead into a new customer when safe.
+        """Convert a potential-customer lead into a new CRM customer.
 
-        Conversion is intentionally conservative: a converted lead must be in
-        the POTENTIAL_CUSTOMER state, and duplicate candidates block conversion
-        by default. The caller owns persistence of the returned customer.
+        Conversion is intentionally conservative. A lead must be in the
+        POTENTIAL_CUSTOMER state. Existing customer matches block conversion
+        unless an explicit duplicate-review override has been approved by the
+        calling workflow. This service never merges or links existing records.
         """
         if lead.status is not LeadStatus.POTENTIAL_CUSTOMER:
             raise ValueError("Only potential customer leads can be converted")
 
         matches = tuple(LeadMatchingService.customer_matches(lead, customers))
-        if require_no_matches and matches:
+        if matches and not duplicate_override_approved:
             raise ValueError("Potential duplicate customer matches must be resolved before conversion")
 
         customer = Customer(
@@ -69,7 +70,11 @@ class LeadConversionService:
             account_owner_id=account_owner_id or lead.assigned_to_user_id,
             access_scope_id=access_scope_id or lead.access_scope_id,
         )
+
+        # The lead changes state only after the new customer has been
+        # successfully constructed. Persistence remains the caller's concern.
         lead.convert()
+
         return customer, CustomerConversionResult(
             lead_id=lead.id,
             converted=True,
